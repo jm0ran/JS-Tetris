@@ -2,16 +2,17 @@ function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20);
 };
 
+
 class Piece{
 	constructor(pieceType){
 		this.state = 1;
+		this.landed = false;
 		if (pieceType == 1){
 			this.pieceType = 1;
 			this.blocks = [[2,2],[2,1],[2,3],[1,2]]; //first block should be point to rotate around
 		};
 	}
 };
-
 Piece.prototype.draw = function(){
 	for (var x = 0; x < this.blocks.length; x++){
 		var location = this.blocks[x];
@@ -26,22 +27,18 @@ Piece.prototype.move = function(direction) {
 		case("up"):
 			index = 1;
 			modifier = -1;
-			console.log("up");
 			break;
 		case("down"):
 			index = 1;
 			modifier = 1;
-			console.log("down");
 			break;
 		case("left"):
 			index = 0;
 			modifier = -1;
-			console.log("left");
 			break;
 		case("right"):
 			index = 0;
 			modifier = 1;
-			console.log("right");
 			break;
 	}
 	if (index != null && modifier != null){
@@ -50,43 +47,55 @@ Piece.prototype.move = function(direction) {
 		}
 	}				
 }
-
 Piece.prototype.rotate = function(){
-
+	var modifiers = new Array;
 	if (this.pieceType == 1){//change to switches one day
 		switch (this.state){ //This code needs to be simplified and it should be that bad, just need xMod, yMod vars and a for loop after cases
+			//fix side states 
 			case(1):
-				this.blocks[1] = [this.blocks[0][0], this.blocks[0][1] - 1] //block one above origin
-				this.blocks[2] = [this.blocks[0][0], this.blocks[0][1] + 1] //block one below origin
-				this.blocks[3] = [this.blocks[0][0] - 1, this.blocks[0][1]] //One to the left
+				modifiers = [[0,-1],[0,1],[-1, 0]];
 				this.state = 2
 				break;
 			case(2):
-				console.log(1);
-				this.blocks[1] = [this.blocks[0][0], this.blocks[0][1] - 1] //block one above origin
-				this.blocks[2] = [this.blocks[0][0] + 1, this.blocks[0][1]] //One to the right
-				this.blocks[3] = [this.blocks[0][0] - 1, this.blocks[0][1]] //One to the left
+				modifiers = [[0,-1],[1,0],[-1,0]];
 				this.state = 3;
 				break;
 			case(3):
-				this.blocks[1] = [this.blocks[0][0], this.blocks[0][1] - 1] //block one above origin
-				this.blocks[2] = [this.blocks[0][0], this.blocks[0][1] + 1] //block one below origin
-				this.blocks[3] = [this.blocks[0][0] + 1, this.blocks[0][1]] //One to the right
+				modifiers = [[0,-1],[0,1],[1,0]];
 				this.state = 4;
 				break;
 			case(4):
-				console.log(2);
-				this.blocks[1] = [this.blocks[0][0], this.blocks[0][1] + 1] //block one below origin
-				this.blocks[2] = [this.blocks[0][0] + 1, this.blocks[0][1]] //One to the right
-				this.blocks[3] = [this.blocks[0][0] - 1, this.blocks[0][1]] //One to the left
+				modifiers = [[0,1],[1,0],[-1,0]];
 				this.state = 1;
 				break;
 		}
+		//modify blocks
+		this.blocks[1] = [this.blocks[0][0] + modifiers[0][0], this.blocks[0][1] + modifiers[0][1]] //block one below origin
+		this.blocks[2] = [this.blocks[0][0] + modifiers[1][0], this.blocks[0][1] + modifiers[1][1]]  //One to the right
+		this.blocks[3] = [this.blocks[0][0] + modifiers[2][0], this.blocks[0][1] + modifiers[2][1]] //One to the left
 	}
 
 }
+Piece.prototype.writeBlocks = function(){
+	for (var x = 0; x < this.blocks.length; x++){
+		block.backlog.push(this.blocks[x]);
+	}
+	piece1 = new Piece(1);
+}
 
-piece1 = new Piece(1);
+Piece.prototype.trackFall = function(){
+	if (!this.landed){
+		for (var x = 0; x < this.blocks.length; x++){
+				if (this.blocks[x][1] >= 23){
+					this.landed = true;
+					this.writeBlocks();
+			}
+		}
+	}	
+}
+
+
+var piece1 = new Piece(1);
 
 
 var tetrisWindow = { //Properties for tetris window in object
@@ -98,11 +107,12 @@ var tetrisWindow = { //Properties for tetris window in object
 
 var block = { //Information for blocks, want to make a piece object that lets me move pieces as a group
 	length : tetrisWindow.width / 10,
-	location : [null, null]
+	location : [null, null],
+	backlog : new Array
 }
 
-block.location = [0, 1] //default block location
-
+block.location = [0, 1]; //default block location
+block.backlog.push([5, 5]); //test block
 
 
 
@@ -123,11 +133,15 @@ function draw() { //Main looping draw function
 	background(255,255,255);
 	rect(tetrisWindow.xOffset, tetrisWindow.yOffset, tetrisWindow.width, tetrisWindow.height);
 	piece1.draw()
+	piece1.trackFall();
+
+	for (var x = 0; x < block.backlog.length; x++){
+		renderRect(block.backlog[x]);
+	}
 
 };
 
 function keyPressed(){ //Function to detect key presses 
-	console.log(keyCode);
 	if (keyCode == 87){
 		piece1.move("up");
 		block.location[1] -= 1;
