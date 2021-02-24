@@ -1,9 +1,29 @@
 var miliTarget = 500;
 var autoDrop = true;
 var pieceType = 7;
+var deadzone = new Array;
+
+for (var x = 0; x < 24; x++){ //Creates a deadzone to prevent horizontal bound breaking
+	deadzone.push([-1, x]);
+	deadzone.push([10, x]);
+}
+
 
 function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20); //Canvas creation
+};
+
+function inArray(original, toCheck){
+	var sOriginal = JSON.stringify(original);
+	var sToCheck = new Array;
+	var includes = false;
+	for (var x = 0; x < toCheck.length; x++){
+		if (sOriginal.includes(JSON.stringify(toCheck[x]))){
+			includes = true;
+			break;
+		}
+	}
+	return includes;
 };
 
 
