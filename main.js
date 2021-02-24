@@ -1,6 +1,6 @@
 var miliTarget = 500;
 var autoDrop = true;
-var pieceType = 4;
+var pieceType = 7;
 
 function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20); //Canvas creation
@@ -21,9 +21,19 @@ class Piece{ //Class for piece
 		else if (pieceType == 3){ //Right side L
 			this.blocks = [[5,1],[5,0],[5,2],[6,2]];
 		}
-		else if (pieceType == 4){
+		else if (pieceType == 4){ //Straight
 			this.blocks = [[5,1],[5,0],[5,2],[5,3]]
 		}
+		else if (pieceType == 5){ //Square
+			this.blocks = [[5,1],[5,0],[6,1],[6,0]]
+		}
+		else if (pieceType == 6){ //Right Z
+			this.blocks = [[4,1],[4,0],[5,1],[5,2]]
+		}
+		else if (pieceType == 7){ //Left Z
+			this.blocks = [[5,1],[5,0],[6,1],[6,2]]
+		}
+
 	}
 };
 Piece.prototype.draw = function(){ //draws the piece on screen
@@ -128,7 +138,7 @@ Piece.prototype.rotate = function(){ //Rotating pieces
 		}
 		
 	}
-		else if (this.pieceType == 4){ //Straight
+	else if (this.pieceType == 4){ //Straight
 		switch (this.state){ 
 			case(1):
 				modifiers = [[0,-1],[0,1],[0, 2]]; 
@@ -149,6 +159,50 @@ Piece.prototype.rotate = function(){ //Rotating pieces
 		}
 		
 	}
+	else if (this.pieceType == 5){ //Cube
+		modifiers = [[0,1],[1,0],[1,1]];
+	}
+	else if (this.pieceType == 6){ //Right Z
+		switch (this.state){ 
+			case(1):
+				modifiers = [[0,-1],[-1,0],[-1, 1]]; 
+				this.state = 2
+				break;
+			case(2):
+				modifiers = [[1,0],[0,-1],[-1,-1]];
+				this.state = 3;
+				break;
+			case(3):
+				modifiers = [[0,1],[1,0],[1,-1]];
+				this.state = 4;
+				break;
+			case(4):
+				modifiers = [[-1,0],[0,1],[1,1]];
+				this.state = 1;
+				break;
+		}	
+	}
+	else if (this.pieceType == 7){ //Left Z
+		switch (this.state){ 
+			case(1):
+				modifiers = [[0,-1],[1,0],[1, 1]]; 
+				this.state = 2
+				break;
+			case(2):
+				modifiers = [[1,0],[0,1],[-1,1]];
+				this.state = 3;
+				break;
+			case(3):
+				modifiers = [[0,1],[-1,0],[-1,-1]];
+				this.state = 4;
+				break;
+			case(4):
+				modifiers = [[-1,0],[0,-1],[1,-1]];
+				this.state = 1;
+				break;
+		}
+		
+	}
 
 	//modify blocks
 		this.blocks[1] = [this.blocks[0][0] + modifiers[0][0], this.blocks[0][1] + modifiers[0][1]] //block one below origin
@@ -160,7 +214,9 @@ Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped b
 	for (var x = 0; x < this.blocks.length; x++){
 		block.backlog.push(this.blocks[x]);
 	}
-	piece1 = new Piece(pieceType);
+	var randomNum = Math.floor(Math.random() * 7) + 1;
+	console.log(randomNum);
+	piece1 = new Piece(randomNum);
 }
 
 Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece placement 
