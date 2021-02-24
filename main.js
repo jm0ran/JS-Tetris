@@ -4,8 +4,10 @@ function setup() { //Setup Function
 
 class Piece{
 	constructor(pieceType){
+		this.state = 1;
 		if (pieceType == 1){
-			this.blocks = [[2,1],[2,2],[2,3],[1,2]];
+			this.pieceType = 1;
+			this.blocks = [[2,2],[2,1],[2,3],[1,2]]; //first block should be point to rotate around
 		};
 	}
 };
@@ -47,6 +49,41 @@ Piece.prototype.move = function(direction) {
 			this.blocks[x][index] += modifier;
 		}
 	}				
+}
+
+Piece.prototype.rotate = function(){
+
+	if (this.pieceType == 1){//change to switches one day
+		switch (this.state){ //This code needs to be simplified and it should be that bad, just need xMod, yMod vars and a for loop after cases
+			case(1):
+				this.blocks[1] = [this.blocks[0][0], this.blocks[0][1] - 1] //block one above origin
+				this.blocks[2] = [this.blocks[0][0], this.blocks[0][1] + 1] //block one below origin
+				this.blocks[3] = [this.blocks[0][0] - 1, this.blocks[0][1]] //One to the left
+				this.state = 2
+				break;
+			case(2):
+				console.log(1);
+				this.blocks[1] = [this.blocks[0][0], this.blocks[0][1] - 1] //block one above origin
+				this.blocks[2] = [this.blocks[0][0] + 1, this.blocks[0][1]] //One to the right
+				this.blocks[3] = [this.blocks[0][0] - 1, this.blocks[0][1]] //One to the left
+				this.state = 3;
+				break;
+			case(3):
+				this.blocks[1] = [this.blocks[0][0], this.blocks[0][1] - 1] //block one above origin
+				this.blocks[2] = [this.blocks[0][0], this.blocks[0][1] + 1] //block one below origin
+				this.blocks[3] = [this.blocks[0][0] + 1, this.blocks[0][1]] //One to the right
+				this.state = 4;
+				break;
+			case(4):
+				console.log(2);
+				this.blocks[1] = [this.blocks[0][0], this.blocks[0][1] + 1] //block one below origin
+				this.blocks[2] = [this.blocks[0][0] + 1, this.blocks[0][1]] //One to the right
+				this.blocks[3] = [this.blocks[0][0] - 1, this.blocks[0][1]] //One to the left
+				this.state = 1;
+				break;
+		}
+	}
+
 }
 
 piece1 = new Piece(1);
@@ -107,6 +144,8 @@ function keyPressed(){ //Function to detect key presses
 	else if (keyCode == 68){
 		block.location[0] += 1;
 		piece1.move("right");
-
+	}
+	else if (keyCode == 82){
+		piece1.rotate();
 	}
 }
