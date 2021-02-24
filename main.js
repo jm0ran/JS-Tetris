@@ -1,3 +1,6 @@
+var miliTarget = 500;
+var autoDrop = true;
+
 function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20);
 };
@@ -8,7 +11,7 @@ class Piece{
 		this.state = 1;
 		this.landed = false;
 		if (pieceType == 1){
-			this.pieceType = 1;
+			this.pieceType = 1; //T-Piece
 			this.blocks = [[2,2],[2,1],[2,3],[1,2]]; //first block should be point to rotate around
 		};
 	}
@@ -140,8 +143,15 @@ function renderRect(location) //function to render perBlock
 
 
 function draw() { //Main looping draw function
+	if (millis() > miliTarget && autoDrop){
+		piece1.move("down");
+		miliTarget += 500;
+	}
+
 	background(255,255,255);
+	fill(255,255,255);
 	rect(tetrisWindow.xOffset, tetrisWindow.yOffset, tetrisWindow.width, tetrisWindow.height);
+	fill('rgb(100%,0%,10%)');
 	piece1.draw()
 	for (var x = 0; x < block.backlog.length; x++){
 		renderRect(block.backlog[x]);
@@ -170,4 +180,9 @@ function keyPressed(){ //Function to detect key presses
 	else if (keyCode == 82){
 		piece1.rotate();
 	}
+	else if (keyCode == 80){
+		autoDrop = false;
+	}
 }
+
+
