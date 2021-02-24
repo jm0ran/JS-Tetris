@@ -45,7 +45,8 @@ Piece.prototype.move = function(direction) {
 		for (var x = 0; x < this.blocks.length; x++){
 			this.blocks[x][index] += modifier;
 		}
-	}				
+	}
+	piece1.trackFall();				
 }
 Piece.prototype.rotate = function(){
 	var modifiers = new Array;
@@ -85,17 +86,26 @@ Piece.prototype.writeBlocks = function(){
 
 Piece.prototype.trackFall = function(){
 	if (!this.landed){
+		var sBacklog = JSON.stringify(block.backlog);
 		for (var x = 0; x < this.blocks.length; x++){
-				if (this.blocks[x][1] >= 23){
+				var bottomBlock = JSON.stringify([this.blocks[x][0], this.blocks[x][1] + 1]);
+				if (sBacklog.includes(bottomBlock)) //detect if piece is directly over another piece
+				{
+					this.landed=true;
+					this.writeBlocks();
+				}
+
+				else if (this.blocks[x][1] >= 23){
 					this.landed = true;
 					this.writeBlocks();
+				 
 			}
 		}
 	}	
 }
 
 
-var piece1 = new Piece(1);
+var piece1 = new Piece(1); //This is going to be our initial piece for the game
 
 
 var tetrisWindow = { //Properties for tetris window in object
@@ -112,7 +122,7 @@ var block = { //Information for blocks, want to make a piece object that lets me
 }
 
 block.location = [0, 1]; //default block location
-block.backlog.push([5, 5]); //test block
+
 
 
 
@@ -133,8 +143,6 @@ function draw() { //Main looping draw function
 	background(255,255,255);
 	rect(tetrisWindow.xOffset, tetrisWindow.yOffset, tetrisWindow.width, tetrisWindow.height);
 	piece1.draw()
-	piece1.trackFall();
-
 	for (var x = 0; x < block.backlog.length; x++){
 		renderRect(block.backlog[x]);
 	}
