@@ -1,5 +1,6 @@
 var miliTarget = 500;
 var autoDrop = true;
+var pieceType = 4;
 
 function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20); //Canvas creation
@@ -10,10 +11,19 @@ class Piece{ //Class for piece
 	constructor(pieceType){
 		this.state = 2; //State of rotation
 		this.landed = false; //Is landed
+		this.pieceType = pieceType;
 		if (pieceType == 1){ //T-Pice
-			this.pieceType = 1; 
 			this.blocks = [[2,2],[2,1],[2,3],[1,2]]; //first block should be point to rotate around
-		};
+		}
+		else if (pieceType == 2){ //left side L
+			this.blocks = [[5,1],[5,0],[5,2],[4,2]];
+		}
+		else if (pieceType == 3){ //Right side L
+			this.blocks = [[5,1],[5,0],[5,2],[6,2]];
+		}
+		else if (pieceType == 4){
+			this.blocks = [[5,1],[5,0],[5,2],[5,3]]
+		}
 	}
 };
 Piece.prototype.draw = function(){ //draws the piece on screen
@@ -74,18 +84,83 @@ Piece.prototype.rotate = function(){ //Rotating pieces
 				this.state = 1;
 				break;
 		}
-		//modify blocks
+		
+	}
+	else if (this.pieceType == 2){ //Left L
+		switch (this.state){
+			case(1):
+				modifiers = [[0,-1],[0, 1],[-1, 1]]; 
+				this.state = 2
+				break;
+			case(2):
+				modifiers = [[-1,0],[1,0],[-1,-1]];
+				this.state = 3;
+				break;
+			case(3):
+				modifiers = [[0,1],[0,-1],[1,-1]];
+				this.state = 4;
+				break;
+			case(4):
+				modifiers = [[-1,0],[1,0],[1,1]];
+				this.state = 1;
+				break;
+		}
+		
+	}
+	else if (this.pieceType == 3){ //right L
+		switch (this.state){
+			case(1):
+				modifiers = [[0,-1],[0,1],[1, 1]]; 
+				this.state = 2
+				break;
+			case(2):
+				modifiers = [[1,0],[-1,0],[-1,1]];
+				this.state = 3;
+				break;
+			case(3):
+				modifiers = [[0,1],[0,-1],[-1,-1]];
+				this.state = 4;
+				break;
+			case(4):
+				modifiers = [[-1,0],[1,0],[1,-1]];
+				this.state = 1;
+				break;
+		}
+		
+	}
+		else if (this.pieceType == 4){ //Straight
+		switch (this.state){ 
+			case(1):
+				modifiers = [[0,-1],[0,1],[0, 2]]; 
+				this.state = 2
+				break;
+			case(2):
+				modifiers = [[-2,0],[-1,0],[1,0]];
+				this.state = 3;
+				break;
+			case(3):
+				modifiers = [[0,1],[0,-1],[0,-2]];
+				this.state = 4;
+				break;
+			case(4):
+				modifiers = [[-1,0],[1,0],[2,0]];
+				this.state = 1;
+				break;
+		}
+		
+	}
+
+	//modify blocks
 		this.blocks[1] = [this.blocks[0][0] + modifiers[0][0], this.blocks[0][1] + modifiers[0][1]] //block one below origin
 		this.blocks[2] = [this.blocks[0][0] + modifiers[1][0], this.blocks[0][1] + modifiers[1][1]]  //One to the right
 		this.blocks[3] = [this.blocks[0][0] + modifiers[2][0], this.blocks[0][1] + modifiers[2][1]] //One to the left
-	}
 
 }
 Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped blocks array, I want to check for line clears here
 	for (var x = 0; x < this.blocks.length; x++){
 		block.backlog.push(this.blocks[x]);
 	}
-	piece1 = new Piece(1);
+	piece1 = new Piece(pieceType);
 }
 
 Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece placement 
@@ -109,7 +184,7 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 }
 
 
-var piece1 = new Piece(1); //This is going to be our initial piece for the game
+var piece1 = new Piece(pieceType); //This is going to be our initial piece for the game
 
 
 var tetrisWindow = { //Properties for tetris window in object
