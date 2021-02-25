@@ -4,6 +4,7 @@ var autoDrop = true;
 var pieceType = 7;
 var deadzone = new Array;
 var allowChange = true;
+var allowControl = true;
 
 for (var x = 0; x < 24; x++){ //Creates a deadzone to prevent horizontal bound breaking
 	deadzone.push([-1, x]);
@@ -17,6 +18,11 @@ for (var x = 0; x < 10; x++){
 
 function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20); //Canvas creation
+};
+
+function controlTimeout(){
+	console.log("control restored");
+	allowControl = true;
 };
 
 function inArray(original, toCheck){
@@ -376,6 +382,7 @@ function renderRect(location) //function to render perBlock
 
 
 function draw() { //Main looping draw function
+	var input = false;
 	if (millis() > miliTarget && autoDrop){
 		piece1.move("down");
 		miliTarget = millis() + dropSpeed;
@@ -392,22 +399,31 @@ function draw() { //Main looping draw function
 
 		}
 	}
+	if (allowControl == true){
+		if (keyIsDown(65)){
+			piece1.move('left');
+			input = true;
+		}
+		else if (keyIsDown(68)){
+			piece1.move('right');
+			input = true;
+		}
+		else if (keyIsDown(83)){
+			piece1.move('down');
+			input = true;
+		}
+		if (input){
+			setTimeout(controlTimeout ,100);
+			allowControl = false;
+		}
+	}
+	
 
 };
 
 function keyPressed(){ //Function to detect key presses 
 	if (keyCode == 87){
 		piece1.move("up");
-	}
-	else if (keyCode == 83){
-		piece1.move("down");
-	}
-	else if (keyCode == 65){
-		piece1.move("left");
-
-	}
-	else if (keyCode == 68){
-		piece1.move("right");
 	}
 	else if (keyCode == 82){
 		piece1.rotate();
