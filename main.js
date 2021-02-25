@@ -129,8 +129,6 @@ Piece.prototype.rotate = function(){ //Rotating pieces
 		switch (this.state){ //This code needs to be simplified and it should be that bad, just need xMod, yMod vars and a for loop after cases
 			//fix side states 
 
-			//Left Z is turning into right z or right z may be initially defined wrong
-
 			case(1):
 				modifiers = [[0,-1],[0,1],[-1, 0]]; 
 				this.state = 2
@@ -338,7 +336,11 @@ Piece.prototype.clearLines = function(lines){
 			if(inArray(blocksToRemove, [block.backlog[x]])){
 				block.backlog[x] = null;
 			}
+			if(block.backlog[x] != null && block.backlog[x][1] < lines[i]){
+				block.backlog[x][1]++;
+			}
 		}
+
 	}
 
 	
