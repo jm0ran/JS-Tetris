@@ -8,6 +8,10 @@ for (var x = 0; x < 24; x++){ //Creates a deadzone to prevent horizontal bound b
 	deadzone.push([-1, x]);
 	deadzone.push([10, x]);
 }
+for (var x = 0; x < 10; x++){
+	deadzone.push([x, 24]);
+	deadzone.push([x, -1]);
+}
 
 
 function setup() { //Setup Function
@@ -277,6 +281,7 @@ Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped b
 	for (var x = 0; x < this.blocks.length; x++){
 		block.backlog.push(this.blocks[x]);
 	}
+	this.checkLines();
 	piece1 = new Piece(Math.floor(Math.random() * 7) + 1);
 }
 
@@ -288,16 +293,19 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 				if (sBacklog.includes(bottomBlock)) //detect if piece is directly over another piece
 				{
 					this.landed=true;
-					this.writeBlocks();
 				}
-
 				else if (this.blocks[x][1] >= 23){
 					this.landed = true;
-					this.writeBlocks();
 				 
 			}
 		}
+		if (this.landed){
+			this.writeBlocks();
+		}
 	}	
+}
+Piece.prototype.checkLines = function(){
+	console.log("checked Line");
 }
 
 
