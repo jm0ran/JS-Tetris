@@ -1,4 +1,5 @@
-var miliTarget = 500;
+var miliTarget = 200;
+var dropSpeed = 200;
 var autoDrop = true;
 var pieceType = 7;
 var deadzone = new Array;
@@ -53,7 +54,7 @@ class Piece{ //Class for piece
 			this.blocks = [[5,1],[5,0],[6,1],[6,0]]
 		}
 		else if (pieceType == 6){ //Right Z
-			this.blocks = [[4,1],[4,0],[5,1],[5,2]]
+			this.blocks = [[5,1],[5,0],[4,1],[4,2]]
 		}
 		else if (pieceType == 7){ //Left Z
 			this.blocks = [[5,1],[5,0],[6,1],[6,2]]
@@ -127,6 +128,9 @@ Piece.prototype.rotate = function(){ //Rotating pieces
 	if (this.pieceType == 1){//change to switches one day, seperate one for each piece, math is hard... too hard for me to care
 		switch (this.state){ //This code needs to be simplified and it should be that bad, just need xMod, yMod vars and a for loop after cases
 			//fix side states 
+
+			//Left Z is turning into right z or right z may be initially defined wrong
+
 			case(1):
 				modifiers = [[0,-1],[0,1],[-1, 0]]; 
 				this.state = 2
@@ -305,7 +309,39 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 	}	
 }
 Piece.prototype.checkLines = function(){
-	console.log("checked Line");
+	var linesMatched = new Array;
+
+	for (var y = 0; y < 24 ; y++){
+		linesMatched.push(y);
+		for(var x = 0; x < 10; x++){
+			if(!inArray(block.backlog, [[x, y]]))
+			{
+				linesMatched.pop();
+				break;
+			}
+		}
+
+	}
+	if (linesMatched.length >= 1){
+		this.clearLines(linesMatched);
+	} 
+	console.log(linesMatched)
+}
+
+Piece.prototype.clearLines = function(lines){
+	for(var i = 0; i < lines.length; i++){
+		var blocksToRemove = new Array;
+		for(var c = 0; c < 10; c++){
+			blocksToRemove.push([c, lines[i]]);
+		}
+		for (var x = 0; x < block.backlog.length; x++){
+			if(inArray(blocksToRemove, [block.backlog[x]])){
+				block.backlog[x] = null;
+			}
+		}
+	}
+
+	
 }
 
 
@@ -340,7 +376,7 @@ function renderRect(location) //function to render perBlock
 function draw() { //Main looping draw function
 	if (millis() > miliTarget && autoDrop){
 		piece1.move("down");
-		miliTarget += 500;
+		miliTarget = millis() + dropSpeed;
 	}
 
 	background(255,255,255);
@@ -349,7 +385,10 @@ function draw() { //Main looping draw function
 	fill('rgb(100%,0%,10%)');
 	piece1.draw()
 	for (var x = 0; x < block.backlog.length; x++){
-		renderRect(block.backlog[x]);
+		if (block.backlog[x] != null){
+			renderRect(block.backlog[x]);
+
+		}
 	}
 
 };
