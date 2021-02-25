@@ -321,14 +321,8 @@ var tetrisWindow = { //Properties for tetris window in object
 
 var block = { //Information for blocks, want to make a piece object that lets me move pieces as a group
 	length : tetrisWindow.width / 10,
-	location : [null, null],
 	backlog : new Array
 }
-
-block.location = [0, 1]; //default block location
-
-
-
 
 
 
@@ -363,19 +357,15 @@ function draw() { //Main looping draw function
 function keyPressed(){ //Function to detect key presses 
 	if (keyCode == 87){
 		piece1.move("up");
-		block.location[1] -= 1;
 	}
 	else if (keyCode == 83){
-		block.location[1] += 1;
 		piece1.move("down");
 	}
 	else if (keyCode == 65){
-		block.location[0] -= 1;
 		piece1.move("left");
 
 	}
 	else if (keyCode == 68){
-		block.location[0] += 1;
 		piece1.move("right");
 	}
 	else if (keyCode == 82){
