@@ -2,6 +2,7 @@ var miliTarget = 500;
 var autoDrop = true;
 var pieceType = 7;
 var deadzone = new Array;
+var allowChange = true;
 
 for (var x = 0; x < 24; x++){ //Creates a deadzone to prevent horizontal bound breaking
 	deadzone.push([-1, x]);
@@ -64,8 +65,12 @@ Piece.prototype.draw = function(){ //draws the piece on screen
 }
 
 Piece.prototype.move = function(direction) { //Moves the piece
+	
+	console.log(block.backlog);
+	
 	var index = null;
 	var modifier = null;
+	allowChange = true;
 	switch(direction){
 		//index 0 is x axis 1 is y, modifier is how much to change by
 		case("up"):
@@ -85,7 +90,30 @@ Piece.prototype.move = function(direction) { //Moves the piece
 			modifier = 1;
 			break;
 	}
-	if (index != null && modifier != null){ //Makes sure both the index and modifier exist
+
+	var incomingBlocks = new Array;
+	if (direction == "left"){
+		for (var x = 0; x < this.blocks.length; x++){
+			incomingBlock = [this.blocks[x][0] - 1, this.blocks[x][1]];
+			incomingBlocks.push([this.blocks[x][0] - 1, this.blocks[x][1]]);
+		}
+		if(inArray(deadzone, incomingBlocks) || inArray(block.backlog, incomingBlocks)){
+			console.log("left collision");
+			allowChange = false;
+		}
+	}
+	else if (direction == "right"){
+		for (var x = 0; x < this.blocks.length; x++){
+			incomingBlock = [this.blocks[x][0] + 1, this.blocks[x][1]];
+			incomingBlocks.push([this.blocks[x][0] + 1, this.blocks[x][1]]);
+		}
+		if(inArray(deadzone, incomingBlocks) || inArray(block.backlog, incomingBlocks)){
+			console.log("right collision");
+			allowChange = false;
+		}
+	}
+
+	if (allowChange){ //Makes sure both the index and modifier exist
 		for (var x = 0; x < this.blocks.length; x++){
 			this.blocks[x][index] += modifier;
 		}
