@@ -65,9 +65,6 @@ Piece.prototype.draw = function(){ //draws the piece on screen
 }
 
 Piece.prototype.move = function(direction) { //Moves the piece
-	
-	console.log(block.backlog);
-	
 	var index = null;
 	var modifier = null;
 	allowChange = true;
@@ -122,6 +119,7 @@ Piece.prototype.move = function(direction) { //Moves the piece
 }
 Piece.prototype.rotate = function(){ //Rotating pieces
 	var modifiers = new Array;
+	var allowRotate = true;
 	if (this.pieceType == 1){//change to switches one day, seperate one for each piece, math is hard... too hard for me to care
 		switch (this.state){ //This code needs to be simplified and it should be that bad, just need xMod, yMod vars and a for loop after cases
 			//fix side states 
@@ -252,19 +250,34 @@ Piece.prototype.rotate = function(){ //Rotating pieces
 		
 	}
 
+	var toBeRotated = [
+		[this.blocks[0][0] + modifiers[0][0], this.blocks[0][1] + modifiers[0][1]],
+		[this.blocks[0][0] + modifiers[1][0], this.blocks[0][1] + modifiers[1][1]],
+		[this.blocks[0][0] + modifiers[2][0], this.blocks[0][1] + modifiers[2][1]]
+	];
+
+	if (inArray(deadzone, toBeRotated) || inArray(block.backlog, toBeRotated)){
+		allowRotate = false;
+	}
+
+
+
+
 	//modify blocks
+	if(allowRotate){
 		this.blocks[1] = [this.blocks[0][0] + modifiers[0][0], this.blocks[0][1] + modifiers[0][1]] //block one below origin
 		this.blocks[2] = [this.blocks[0][0] + modifiers[1][0], this.blocks[0][1] + modifiers[1][1]]  //One to the right
 		this.blocks[3] = [this.blocks[0][0] + modifiers[2][0], this.blocks[0][1] + modifiers[2][1]] //One to the left
-
+	}
+	else{
+		//need a condition for what to do if rotation is blocked
+	}
 }
 Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped blocks array, I want to check for line clears here
 	for (var x = 0; x < this.blocks.length; x++){
 		block.backlog.push(this.blocks[x]);
 	}
-	var randomNum = Math.floor(Math.random() * 7) + 1;
-	console.log(randomNum);
-	piece1 = new Piece(randomNum);
+	piece1 = new Piece(Math.floor(Math.random() * 7) + 1);
 }
 
 Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece placement 
@@ -288,7 +301,7 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 }
 
 
-var piece1 = new Piece(pieceType); //This is going to be our initial piece for the game
+piece1 = new Piece(Math.floor(Math.random() * 7) + 1); //This is going to be our initial piece for the game
 
 
 var tetrisWindow = { //Properties for tetris window in object
