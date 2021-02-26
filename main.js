@@ -6,9 +6,21 @@ var deadzone = new Array;
 var allowChange = true;
 var allowControl = true;
 
+var color_red = [254, 0, 0];
+var color_orange = [255, 100, 0];
+var color_yellow = [255, 255, 0];
+var color_pink = [255, 153, 203];
+var color_green = [0, 128, 0];
+var color_blue = [0, 0, 254];
+var color_purple = [129, 0, 127];
+
+
+var color_blue = [0, 0, 255];
+
 function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20); //Canvas creation
 };
+
 
 function controlTimeout(){
 	allowControl = true;
@@ -110,29 +122,37 @@ Boards.prototype.clearLines = function(lines){
 
 class Piece{ //Class for piece
 	constructor(pieceType){
+		this.color = color_green;
 		this.state = 2; //State of rotation
 		this.landed = false; //Is landed
 		this.pieceType = pieceType;
 		if (pieceType == 1){ //T-Pice
 			this.blocks = [[2,2],[2,1],[2,3],[1,2]]; //first block should be point to rotate around
+			this.color = color_blue;
 		}
 		else if (pieceType == 2){ //left side L
 			this.blocks = [[5,1],[5,0],[5,2],[4,2]];
+			this.color = color_orange;
 		}
 		else if (pieceType == 3){ //Right side L
 			this.blocks = [[5,1],[5,0],[5,2],[6,2]];
+			this.color = color_yellow;
 		}
 		else if (pieceType == 4){ //Straight
-			this.blocks = [[5,1],[5,0],[5,2],[5,3]]
+			this.blocks = [[5,1],[5,0],[5,2],[5,3]];
+			this.color = color_red;
 		}
 		else if (pieceType == 5){ //Square
-			this.blocks = [[5,1],[5,0],[6,1],[6,0]]
+			this.blocks = [[5,1],[5,0],[6,1],[6,0]];
+			this.color = color_pink;
 		}
 		else if (pieceType == 6){ //Right Z
-			this.blocks = [[5,1],[5,0],[4,1],[4,2]]
+			this.blocks = [[5,1],[5,0],[4,1],[4,2]];
+			this.color = color_purple;
 		}
 		else if (pieceType == 7){ //Left Z
-			this.blocks = [[5,1],[5,0],[6,1],[6,2]]
+			this.blocks = [[5,1],[5,0],[6,1],[6,2]];
+			this.color = color_green;
 		}
 
 	}
@@ -141,6 +161,7 @@ class Piece{ //Class for piece
 Piece.prototype.draw = function(){ //draws the piece on screen
 	for (var x = 0; x < this.blocks.length; x++){
 		var location = this.blocks[x];
+		fill(this.color[0],this.color[1],this.color[2]);
 		rect(tetrisWindow.xOffset + location[0] * block.length, tetrisWindow.yOffset + location[1] * block.length, tetrisWindow.width / 10, tetrisWindow.height / 24);
 	}
 }
@@ -366,7 +387,7 @@ Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped b
 	for (var x = 0; x < this.blocks.length; x++){
 		var xDest = this.blocks[x][0];
 		var yDest = this.blocks[x][1];
-		mainBoard.boardArray[xDest][yDest] = 1; //different colors for different locations at one point
+		mainBoard.boardArray[xDest][yDest] = this.color; //different colors for different locations at one point
 	}
 	mainBoard.checkLines();
 	piece1 = new Piece(Math.floor(Math.random() * 7) + 1);
@@ -405,9 +426,10 @@ var block = { //Information for blocks, want to make a piece object that lets me
 	length : tetrisWindow.width / 10
 }
 
-function renderRect(location) //function to render perBlock
+function renderRect(location , color) //function to render perBlock
 {
 	if (location[0] != null && location[1] != null){
+		fill(color[0],color[1],color[2]);
 		rect(tetrisWindow.xOffset + location[0] * block.length, tetrisWindow.yOffset + location[1] * block.length, tetrisWindow.width / 10, tetrisWindow.height / 24);
 	}
 	
@@ -430,7 +452,7 @@ function draw() { //Main looping draw function
 	for(var x = 0; x < 10; x++){
 		for(var y = 0; y < 24; y++){
 			if(mainBoard.boardArray[x][y] != null){
-				renderRect([x, y]);
+				renderRect([x, y], mainBoard.boardArray[x][y]);
 			}
 		}
 	}
