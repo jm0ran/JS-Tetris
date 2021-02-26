@@ -13,9 +13,43 @@ var color_pink = [255, 153, 203];
 var color_green = [0, 128, 0];
 var color_blue = [0, 0, 254];
 var color_purple = [129, 0, 127];
-
-
 var color_blue = [0, 0, 255];
+
+var held = {
+	pieceType: null,
+	blocks: null,
+	color: null,
+	update: function(){
+		if (this.pieceType == 1){ //T-Pice
+			this.blocks = [[-3,3],[-3,2],[-3,4],[-4,3]]; //first block should be point to rotate around
+			this.color = color_blue;
+		}
+		else if (this.pieceType == 2){ //left side L
+			this.blocks = [[-3,1],[-3,2],[-3,3],[-4,3]];
+			this.color = color_orange;
+		}
+		else if (this.pieceType == 3){ //Right side L
+			this.blocks = [[-4,1],[-4,2],[-4,3],[-3,3]];
+			this.color = color_yellow;
+		}
+		else if (this.pieceType == 4){ //Straight
+			this.blocks = [[-3,0],[-3,1],[-3,2],[-3,3]];
+			this.color = color_red;
+		}
+		else if (this.pieceType == 5){ //Square
+			this.blocks = [[-4,2],[-4,3],[-3,2],[-3,3]];
+			this.color = color_pink;
+		}
+		else if (this.pieceType == 6){ //Right Z
+			this.blocks = [[-3,1],[-3,2],[-4,2],[-4,3]];
+			this.color = color_purple;
+		}
+		else if (this.pieceType == 7){ //Left Z
+			this.blocks = [[-4,1],[-4,2],[-3,2],[-3,3]];
+			this.color = color_green;
+		}
+	}
+}
 
 function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20); //Canvas creation
@@ -58,6 +92,34 @@ function inArray(original, toCheck){
 		}
 	}
 	return includes;
+};
+
+function hold(passedPiece){
+	if(held.pieceType == null){
+		held.pieceType = passedPiece.pieceType;
+		piece1 = new Piece(Math.floor(Math.random() * 7) + 1);
+	}
+	else{
+		var heldTemp = held.pieceType;
+		held.pieceType = passedPiece.pieceType;
+		piece1 = new Piece(heldTemp);
+	}
+	held.update();
+}
+
+function renderHeld(){
+	for(var x = 0; x < held.blocks.length; x++){
+		renderRect(held.blocks[x], held.color);
+	}
+}
+
+function renderRect(location , color) //function to render perBlock
+{
+	if (location[0] != null && location[1] != null){
+		fill(color[0],color[1],color[2]);
+		rect(tetrisWindow.xOffset + location[0] * block.length, tetrisWindow.yOffset + location[1] * block.length, tetrisWindow.width / 10, tetrisWindow.height / 24);
+	}
+	
 };
 
 for (var x = 0; x < 24; x++){ //Creates a deadzone to prevent horizontal bound breaking
@@ -433,15 +495,6 @@ var block = { //Information for blocks, want to make a piece object that lets me
 	length : tetrisWindow.width / 10
 }
 
-function renderRect(location , color) //function to render perBlock
-{
-	if (location[0] != null && location[1] != null){
-		fill(color[0],color[1],color[2]);
-		rect(tetrisWindow.xOffset + location[0] * block.length, tetrisWindow.yOffset + location[1] * block.length, tetrisWindow.width / 10, tetrisWindow.height / 24);
-	}
-	
-};
-
 
 function draw() { //Main looping draw function
 	var input = false;
@@ -455,6 +508,9 @@ function draw() { //Main looping draw function
 	rect(tetrisWindow.xOffset, tetrisWindow.yOffset, tetrisWindow.width, tetrisWindow.height);
 	fill('rgb(100%,0%,10%)');
 	piece1.draw()
+	if (held.pieceType != null){
+		renderHeld();
+	}
 	
 	for(var x = 0; x < 10; x++){
 		for(var y = 0; y < 24; y++){
@@ -493,7 +549,11 @@ function keyPressed(){ //Function to detect key presses
 		}
 	}
 
-	if (keyCode == 87){
+	else if (keyCode == 72){
+		hold(piece1);
+	}
+
+	else if (keyCode == 87){
 		piece1.move("up");
 	}
 	else if (keyCode == 82){
@@ -503,5 +563,4 @@ function keyPressed(){ //Function to detect key presses
 		autoDrop = false;
 	}
 }
-
 
