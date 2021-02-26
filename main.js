@@ -15,11 +15,17 @@ var color_blue = [0, 0, 254];
 var color_purple = [129, 0, 127];
 var color_blue = [0, 0, 255];
 
-var held = {
-	pieceType: null,
-	blocks: null,
-	color: null,
-	update: function(){
+class External{
+	constructor(pieceType, xOffset, yOffset){
+		this.pieceType = pieceType;
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
+		this.blocks = null;
+		this.color = null;
+	}
+};
+
+External.prototype.update = function(){
 		if (this.pieceType == 1){ //T-Pice
 			this.blocks = [[-3,3],[-3,2],[-3,4],[-4,3]]; //first block should be point to rotate around
 			this.color = color_blue;
@@ -37,7 +43,7 @@ var held = {
 			this.color = color_red;
 		}
 		else if (this.pieceType == 5){ //Square
-			this.blocks = [[-4,2],[-4,3],[-3,2],[-3,3]];
+			this.blocks = [[-3,2],[-3,3],[-2,2],[-2,3]];
 			this.color = color_pink;
 		}
 		else if (this.pieceType == 6){ //Right Z
@@ -49,7 +55,13 @@ var held = {
 			this.color = color_green;
 		}
 	}
+
+External.prototype.draw = function(){
+	for(var x = 0; x < this.blocks.length; x++){
+		renderRect([this.blocks[x][0] + this.xOffset,this.blocks[x][1] + this.yOffset], this.color);
+	}
 }
+
 
 function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20); //Canvas creation
@@ -97,20 +109,14 @@ function inArray(original, toCheck){
 function hold(passedPiece){
 	if(held.pieceType == null){
 		held.pieceType = passedPiece.pieceType;
-		piece1 = new Piece(Math.floor(Math.random() * 7) + 1);
+		inPlay = new Piece(Math.floor(Math.random() * 7) + 1);
 	}
 	else{
 		var heldTemp = held.pieceType;
 		held.pieceType = passedPiece.pieceType;
-		piece1 = new Piece(heldTemp);
+		inPlay = new Piece(heldTemp);
 	}
 	held.update();
-}
-
-function renderHeld(){
-	for(var x = 0; x < held.blocks.length; x++){
-		renderRect(held.blocks[x], held.color);
-	}
 }
 
 function renderRect(location , color) //function to render perBlock
@@ -287,7 +293,7 @@ Piece.prototype.move = function(direction) { //Moves the piece
 			this.blocks[x][index] += modifier;
 		}
 	}
-	piece1.trackFall(); //Checks for where the piece is each time the move function is run, move method is used by both player and autoDrop		
+	inPlay.trackFall(); //Checks for where the piece is each time the move function is run, move method is used by both player and autoDrop		
 }
 
 Piece.prototype.rotate = function(){ //Rotating pieces
@@ -453,7 +459,12 @@ Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped b
 		mainBoard.boardArray[xDest][yDest] = this.color; //different colors for different locations at one point
 	}
 	mainBoard.checkLines();
-	piece1 = new Piece(Math.floor(Math.random() * 7) + 1);
+	inPlay = new Piece(upcoming1.pieceType);
+	upcoming1 = new External(upcoming2.pieceType, 15, 0);
+	upcoming2 = new External(Math.floor(Math.random() * 7) + 1, 15, 7)
+	upcoming1.update();
+	upcoming2.update();
+
 }
 
 Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece placement 
@@ -466,7 +477,7 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 			if(this.landState == 1){
 				this.landState = 2
 				setTimeout(function(){
-					piece1.landState = 3;
+					inPlay.landState = 3;
 				}, 1000);
 			}
 			if(this.landState == 3){
@@ -478,9 +489,15 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 }
 
 
-piece1 = new Piece(Math.floor(Math.random() * 7) + 1); //This is going to be our initial piece for the game
+var inPlay = new Piece(Math.floor(Math.random() * 7) + 1); //This is going to be our initial piece for the game
+var held = new External(null, 0, 0);
+var upcoming1 = new External(Math.floor(Math.random() * 7) + 1, 15, 0);
+var upcoming2 = new External(Math.floor(Math.random() * 7) + 1, 15, 7);
+upcoming1.update();
+upcoming2.update();
 mainBoard = new Boards();
 mainBoard.initArray();
+
 
 
 
@@ -499,7 +516,7 @@ var block = { //Information for blocks, want to make a piece object that lets me
 function draw() { //Main looping draw function
 	var input = false;
 	if (millis() > miliTarget && autoDrop){
-		piece1.move("down");
+		inPlay.move("down");
 		miliTarget = millis() + dropSpeed;
 	}
 
@@ -507,11 +524,14 @@ function draw() { //Main looping draw function
 	fill(255,255,255);
 	rect(tetrisWindow.xOffset, tetrisWindow.yOffset, tetrisWindow.width, tetrisWindow.height);
 	fill('rgb(100%,0%,10%)');
-	piece1.draw()
+	inPlay.draw()
 	if (held.pieceType != null){
-		renderHeld();
+		held.draw();
 	}
 	
+	upcoming1.draw();
+	upcoming2.draw();
+
 	for(var x = 0; x < 10; x++){
 		for(var y = 0; y < 24; y++){
 			if(mainBoard.boardArray[x][y] != null){
@@ -521,16 +541,16 @@ function draw() { //Main looping draw function
 	}
 	
 	if (allowControl == true){
-		if (keyIsDown(65)){
-			piece1.move('left');
+		if (keyIsDown(37)){
+			inPlay.move('left');
 			input = true;
 		}
-		else if (keyIsDown(68)){
-			piece1.move('right');
+		else if (keyIsDown(39)){
+			inPlay.move('right');
 			input = true;
 		}
-		else if (keyIsDown(83)){
-			piece1.move('down');
+		else if (keyIsDown(40)){
+			inPlay.move('down');
 			input = true;
 		}
 		if (input){
@@ -541,23 +561,24 @@ function draw() { //Main looping draw function
 };	
 
 function keyPressed(){ //Function to detect key presses 
+	console.log(keyCode);
 	if (keyCode == 32){
 		console.log("harddrop");
-		piece1.landState = 3;
-		while (piece1.landState == 3){
-			piece1.move('down');
+		inPlay.landState = 3;
+		while (inPlay.landState == 3){
+			inPlay.move('down');
 		}
 	}
 
 	else if (keyCode == 72){
-		hold(piece1);
+		hold(inPlay);
 	}
 
-	else if (keyCode == 87){
-		piece1.move("up");
-	}
-	else if (keyCode == 82){
-		piece1.rotate();
+	/*else if (keyCode == 87){	
+		inPlay.move("up");
+	}*/
+	else if (keyCode == 38){
+		inPlay.rotate();
 	}
 	else if (keyCode == 80){
 		autoDrop = false;
