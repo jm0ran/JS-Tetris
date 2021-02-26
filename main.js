@@ -124,7 +124,8 @@ class Piece{ //Class for piece
 	constructor(pieceType){
 		this.color = color_green;
 		this.state = 2; //State of rotation
-		this.landed = false; //Is landed
+		this.landed = false; //Is landed, want to exhange any instances of this with land state 
+		this.landState = 1; //1: has not touched any blocks, 2: Touched blocks, in cooldown, 3: Ready to be locked in 
 		this.pieceType = pieceType;
 		if (pieceType == 1){ //T-Pice
 			this.blocks = [[2,2],[2,1],[2,3],[1,2]]; //first block should be point to rotate around
@@ -394,16 +395,22 @@ Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped b
 }
 
 Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece placement 
-	if (!this.landed){
+	if (this.landState != null){ //may not be needed, depends on how I continue this code 
 		var bottomBlocks = new Array;
 		for (var x = 0; x < this.blocks.length; x++){
 			bottomBlocks.push([this.blocks[x][0], this.blocks[x][1] + 1]);
 		}
 		if(checkExistanceArray(bottomBlocks) || inArray(deadzone, bottomBlocks)){
-			this.landed = true;
-		}
-		if (this.landed){
-			this.writeBlocks();
+			if(this.landState == 1){
+				this.landState = 2
+				setTimeout(function(){
+					piece1.landState = 3;
+				}, 1000);
+			}
+			if(this.landState == 3){
+				this.landState = 1;
+				this.writeBlocks();
+			}
 		}
 	}
 }
@@ -478,6 +485,14 @@ function draw() { //Main looping draw function
 };	
 
 function keyPressed(){ //Function to detect key presses 
+	if (keyCode == 32){
+		console.log("harddrop");
+		piece1.landState = 3;
+		while (piece1.landState == 3){
+			piece1.move('down');
+		}
+	}
+
 	if (keyCode == 87){
 		piece1.move("up");
 	}
