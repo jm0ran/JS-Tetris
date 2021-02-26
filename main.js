@@ -6,24 +6,34 @@ var deadzone = new Array;
 var allowChange = true;
 var allowControl = true;
 
-for (var x = 0; x < 24; x++){ //Creates a deadzone to prevent horizontal bound breaking
-	deadzone.push([-1, x]);
-	deadzone.push([10, x]);
-}
-for (var x = 0; x < 10; x++){
-	deadzone.push([x, 24]);
-	deadzone.push([x, -1]);
-}
-
-
 function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20); //Canvas creation
 };
 
 function controlTimeout(){
-	console.log("control restored");
 	allowControl = true;
 };
+
+function checkExistanceSingular(location){
+	var destination = mainBoard.boardArray[x][y];
+	if(destination != null){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+function checkExistanceArray(locations){
+	for(var x = 0; x < locations.length; x++){
+			var destination = mainBoard.boardArray[locations[x][0]][locations[x][1]];
+			if(destination != null){
+				return true;
+				break;
+			}
+	}
+	return false;
+}
 
 function inArray(original, toCheck){
 	var sOriginal = JSON.stringify(original);
@@ -38,6 +48,65 @@ function inArray(original, toCheck){
 	return includes;
 };
 
+for (var x = 0; x < 24; x++){ //Creates a deadzone to prevent horizontal bound breaking
+	deadzone.push([-1, x]);
+	deadzone.push([10, x]);
+}
+for (var x = 0; x < 10; x++){
+	deadzone.push([x, 24]);
+	deadzone.push([x, -1]);
+}
+
+
+//---- CLASSES ----\\
+
+class Boards{
+	constructor(){
+		this.boardArray = new Array;
+	}
+}
+
+Boards.prototype.initArray = function(){
+	for(var x = 0; x < 10; x++){
+		var arrayToPush = new Array;
+		for(var y = 0; y < 24; y++){
+			arrayToPush.push(null);
+		}
+		this.boardArray.push(arrayToPush);
+	}
+}
+
+Boards.prototype.checkLines = function(){
+	var linesMatched = new Array;
+	for (var y = 0; y < 24 ; y++){
+		linesMatched.push(y);
+		for(var x = 0; x < 10; x++){
+			if(mainBoard.boardArray[x][y] == null){
+				linesMatched.pop();
+				break;
+			}
+		}
+	}
+	if (linesMatched.length >= 1){
+		this.clearLines(linesMatched);
+	} 
+}
+
+Boards.prototype.clearLines = function(lines){
+	for(var y = 0; y < lines.length; y++){
+		for(var x = 0; x < 10; x++){
+			this.boardArray[x][lines[y]] = null;
+		}
+		for(var y2 = lines[y]; y2 >= 0; y2--){
+			for(var x = 0; x < 10; x++){
+				if(this.boardArray[x][y2] != null){
+					this.boardArray[x][y2 + 1] = this.boardArray[x][y2];
+					this.boardArray[x][y2] = null;
+				}
+			}
+		}
+	}
+}
 
 class Piece{ //Class for piece
 	constructor(pieceType){
@@ -68,6 +137,7 @@ class Piece{ //Class for piece
 
 	}
 };
+
 Piece.prototype.draw = function(){ //draws the piece on screen
 	for (var x = 0; x < this.blocks.length; x++){
 		var location = this.blocks[x];
@@ -102,21 +172,28 @@ Piece.prototype.move = function(direction) { //Moves the piece
 	var incomingBlocks = new Array;
 	if (direction == "left"){
 		for (var x = 0; x < this.blocks.length; x++){
-			incomingBlock = [this.blocks[x][0] - 1, this.blocks[x][1]];
+			//incomingBlock = [this.blocks[x][0] - 1, this.blocks[x][1]];
 			incomingBlocks.push([this.blocks[x][0] - 1, this.blocks[x][1]]);
 		}
-		if(inArray(deadzone, incomingBlocks) || inArray(block.backlog, incomingBlocks)){
-			console.log("left collision");
+		if(inArray(deadzone, incomingBlocks) || checkExistanceArray(incomingBlocks)){
 			allowChange = false;
 		}
 	}
 	else if (direction == "right"){
 		for (var x = 0; x < this.blocks.length; x++){
-			incomingBlock = [this.blocks[x][0] + 1, this.blocks[x][1]];
+			//incomingBlock = [this.blocks[x][0] + 1, this.blocks[x][1]];
 			incomingBlocks.push([this.blocks[x][0] + 1, this.blocks[x][1]]);
 		}
-		if(inArray(deadzone, incomingBlocks) || inArray(block.backlog, incomingBlocks)){
-			console.log("right collision");
+		if(inArray(deadzone, incomingBlocks) || checkExistanceArray(incomingBlocks)){
+			allowChange = false;
+		}
+	}
+
+	else if (direction == "down"){
+		for (var x = 0; x < this.blocks.length; x++){
+			incomingBlocks.push([this.blocks[x][0], this.blocks[x][1] + 1]);
+		}
+		if(inArray(deadzone, incomingBlocks) || checkExistanceArray(incomingBlocks)){
 			allowChange = false;
 		}
 	}
@@ -128,6 +205,7 @@ Piece.prototype.move = function(direction) { //Moves the piece
 	}
 	piece1.trackFall(); //Checks for where the piece is each time the move function is run, move method is used by both player and autoDrop		
 }
+
 Piece.prototype.rotate = function(){ //Rotating pieces
 	var modifiers = new Array;
 	var allowRotate = true;
@@ -268,11 +346,9 @@ Piece.prototype.rotate = function(){ //Rotating pieces
 		[this.blocks[0][0] + modifiers[2][0], this.blocks[0][1] + modifiers[2][1]]
 	];
 
-	if (inArray(deadzone, toBeRotated) || inArray(block.backlog, toBeRotated)){
+	if (inArray(deadzone, toBeRotated) || checkExistanceArray(toBeRotated)){
 		allowRotate = false;
 	}
-
-
 
 
 	//modify blocks
@@ -285,75 +361,37 @@ Piece.prototype.rotate = function(){ //Rotating pieces
 		//need a condition for what to do if rotation is blocked
 	}
 }
+
 Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped blocks array, I want to check for line clears here
 	for (var x = 0; x < this.blocks.length; x++){
-		block.backlog.push(this.blocks[x]);
+		var xDest = this.blocks[x][0];
+		var yDest = this.blocks[x][1];
+		mainBoard.boardArray[xDest][yDest] = 1; //different colors for different locations at one point
 	}
-	this.checkLines();
+	mainBoard.checkLines();
 	piece1 = new Piece(Math.floor(Math.random() * 7) + 1);
 }
 
 Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece placement 
 	if (!this.landed){
-		var sBacklog = JSON.stringify(block.backlog);
+		var bottomBlocks = new Array;
 		for (var x = 0; x < this.blocks.length; x++){
-				var bottomBlock = JSON.stringify([this.blocks[x][0], this.blocks[x][1] + 1]);
-				if (sBacklog.includes(bottomBlock)) //detect if piece is directly over another piece
-				{
-					this.landed=true;
-				}
-				else if (this.blocks[x][1] >= 23){
-					this.landed = true;
-				 
-			}
+			bottomBlocks.push([this.blocks[x][0], this.blocks[x][1] + 1]);
+		}
+		if(checkExistanceArray(bottomBlocks) || inArray(deadzone, bottomBlocks)){
+			this.landed = true;
 		}
 		if (this.landed){
 			this.writeBlocks();
 		}
-	}	
-}
-Piece.prototype.checkLines = function(){
-	var linesMatched = new Array;
-
-	for (var y = 0; y < 24 ; y++){
-		linesMatched.push(y);
-		for(var x = 0; x < 10; x++){
-			if(!inArray(block.backlog, [[x, y]]))
-			{
-				linesMatched.pop();
-				break;
-			}
-		}
-
 	}
-	if (linesMatched.length >= 1){
-		this.clearLines(linesMatched);
-	} 
-	console.log(linesMatched)
-}
-
-Piece.prototype.clearLines = function(lines){
-	for(var i = 0; i < lines.length; i++){
-		var blocksToRemove = new Array;
-		for(var c = 0; c < 10; c++){
-			blocksToRemove.push([c, lines[i]]);
-		}
-		for (var x = 0; x < block.backlog.length; x++){
-			if(inArray(blocksToRemove, [block.backlog[x]])){
-				block.backlog[x] = null;
-			}
-			if(block.backlog[x] != null && block.backlog[x][1] < lines[i]){
-				block.backlog[x][1]++;
-			}
-		}
-
-	}
-
-	
 }
 
 
 piece1 = new Piece(Math.floor(Math.random() * 7) + 1); //This is going to be our initial piece for the game
+mainBoard = new Boards();
+mainBoard.initArray();
+
 
 
 var tetrisWindow = { //Properties for tetris window in object
@@ -364,11 +402,8 @@ var tetrisWindow = { //Properties for tetris window in object
 }
 
 var block = { //Information for blocks, want to make a piece object that lets me move pieces as a group
-	length : tetrisWindow.width / 10,
-	backlog : new Array
+	length : tetrisWindow.width / 10
 }
-
-
 
 function renderRect(location) //function to render perBlock
 {
@@ -377,8 +412,6 @@ function renderRect(location) //function to render perBlock
 	}
 	
 };
-
-
 
 
 function draw() { //Main looping draw function
@@ -393,12 +426,15 @@ function draw() { //Main looping draw function
 	rect(tetrisWindow.xOffset, tetrisWindow.yOffset, tetrisWindow.width, tetrisWindow.height);
 	fill('rgb(100%,0%,10%)');
 	piece1.draw()
-	for (var x = 0; x < block.backlog.length; x++){
-		if (block.backlog[x] != null){
-			renderRect(block.backlog[x]);
-
+	
+	for(var x = 0; x < 10; x++){
+		for(var y = 0; y < 24; y++){
+			if(mainBoard.boardArray[x][y] != null){
+				renderRect([x, y]);
+			}
 		}
 	}
+	
 	if (allowControl == true){
 		if (keyIsDown(65)){
 			piece1.move('left');
@@ -417,9 +453,7 @@ function draw() { //Main looping draw function
 			allowControl = false;
 		}
 	}
-	
-
-};
+};	
 
 function keyPressed(){ //Function to detect key presses 
 	if (keyCode == 87){
