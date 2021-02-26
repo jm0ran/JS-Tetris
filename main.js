@@ -15,53 +15,6 @@ var color_blue = [0, 0, 254];
 var color_purple = [129, 0, 127];
 var color_blue = [0, 0, 255];
 
-class External{
-	constructor(pieceType, xOffset, yOffset){
-		this.pieceType = pieceType;
-		this.xOffset = xOffset;
-		this.yOffset = yOffset;
-		this.blocks = null;
-		this.color = null;
-	}
-};
-
-External.prototype.update = function(){
-		if (this.pieceType == 1){ //T-Pice
-			this.blocks = [[-3,3],[-3,2],[-3,4],[-4,3]]; //first block should be point to rotate around
-			this.color = color_blue;
-		}
-		else if (this.pieceType == 2){ //left side L
-			this.blocks = [[-3,1],[-3,2],[-3,3],[-4,3]];
-			this.color = color_orange;
-		}
-		else if (this.pieceType == 3){ //Right side L
-			this.blocks = [[-4,1],[-4,2],[-4,3],[-3,3]];
-			this.color = color_yellow;
-		}
-		else if (this.pieceType == 4){ //Straight
-			this.blocks = [[-3,0],[-3,1],[-3,2],[-3,3]];
-			this.color = color_red;
-		}
-		else if (this.pieceType == 5){ //Square
-			this.blocks = [[-3,2],[-3,3],[-2,2],[-2,3]];
-			this.color = color_pink;
-		}
-		else if (this.pieceType == 6){ //Right Z
-			this.blocks = [[-3,1],[-3,2],[-4,2],[-4,3]];
-			this.color = color_purple;
-		}
-		else if (this.pieceType == 7){ //Left Z
-			this.blocks = [[-4,1],[-4,2],[-3,2],[-3,3]];
-			this.color = color_green;
-		}
-	}
-
-External.prototype.draw = function(){
-	for(var x = 0; x < this.blocks.length; x++){
-		renderRect([this.blocks[x][0] + this.xOffset,this.blocks[x][1] + this.yOffset], this.color);
-	}
-}
-
 
 function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20); //Canvas creation
@@ -109,7 +62,11 @@ function inArray(original, toCheck){
 function hold(passedPiece){
 	if(held.pieceType == null){
 		held.pieceType = passedPiece.pieceType;
-		inPlay = new Piece(Math.floor(Math.random() * 7) + 1);
+		inPlay = new Piece(upcoming1.pieceType);
+		upcoming1 = new External(upcoming2.pieceType, 15, 0);
+		upcoming2 = new External(Math.floor(Math.random() * 7) + 1, 15, 7)
+		upcoming1.update();
+		upcoming2.update();
 	}
 	else{
 		var heldTemp = held.pieceType;
@@ -127,6 +84,22 @@ function renderRect(location , color) //function to render perBlock
 	}
 	
 };
+
+function renderUI(){
+	//Outer Grid:
+	background(255,255,255);
+	fill(255,255,255);
+	rect(tetrisWindow.xOffset, tetrisWindow.yOffset, tetrisWindow.width, tetrisWindow.height);
+
+	stroke(211,211,211);
+	for (var x = 1; x < 10; x++){
+		line(tetrisWindow.xOffset + (x * block.length), tetrisWindow.yOffset, tetrisWindow.xOffset + (x * block.length), tetrisWindow.yOffset + tetrisWindow.height);
+	}
+	for(var y = 1; y < 24; y++){
+	line(tetrisWindow.xOffset, tetrisWindow.yOffset + (y * block.length), tetrisWindow.xOffset + tetrisWindow.width, tetrisWindow.yOffset + (y * block.length));
+	}
+	stroke(0,0,0);
+}
 
 for (var x = 0; x < 24; x++){ //Creates a deadzone to prevent horizontal bound breaking
 	deadzone.push([-1, x]);
@@ -185,6 +158,53 @@ Boards.prototype.clearLines = function(lines){
 				}
 			}
 		}
+	}
+}
+
+class External{
+	constructor(pieceType, xOffset, yOffset){
+		this.pieceType = pieceType;
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
+		this.blocks = null;
+		this.color = null;
+	}
+};
+
+External.prototype.update = function(){
+		if (this.pieceType == 1){ //T-Pice
+			this.blocks = [[-3,3],[-3,2],[-3,4],[-4,3]]; //first block should be point to rotate around
+			this.color = color_blue;
+		}
+		else if (this.pieceType == 2){ //left side L
+			this.blocks = [[-3,1],[-3,2],[-3,3],[-4,3]];
+			this.color = color_orange;
+		}
+		else if (this.pieceType == 3){ //Right side L
+			this.blocks = [[-4,1],[-4,2],[-4,3],[-3,3]];
+			this.color = color_yellow;
+		}
+		else if (this.pieceType == 4){ //Straight
+			this.blocks = [[-3,0],[-3,1],[-3,2],[-3,3]];
+			this.color = color_red;
+		}
+		else if (this.pieceType == 5){ //Square
+			this.blocks = [[-3,2],[-3,3],[-2,2],[-2,3]];
+			this.color = color_pink;
+		}
+		else if (this.pieceType == 6){ //Right Z
+			this.blocks = [[-3,1],[-3,2],[-4,2],[-4,3]];
+			this.color = color_purple;
+		}
+		else if (this.pieceType == 7){ //Left Z
+			this.blocks = [[-4,1],[-4,2],[-3,2],[-3,3]];
+			this.color = color_green;
+		}
+	}
+
+External.prototype.draw = function(){
+	for(var x = 0; x < this.blocks.length; x++){
+		renderRect([this.blocks[x][0] + this.xOffset,this.blocks[x][1] + this.yOffset], this.color);
 	}
 }
 
@@ -520,10 +540,8 @@ function draw() { //Main looping draw function
 		miliTarget = millis() + dropSpeed;
 	}
 
-	background(255,255,255);
-	fill(255,255,255);
-	rect(tetrisWindow.xOffset, tetrisWindow.yOffset, tetrisWindow.width, tetrisWindow.height);
-	fill('rgb(100%,0%,10%)');
+	renderUI();
+
 	inPlay.draw()
 	if (held.pieceType != null){
 		held.draw();
@@ -561,9 +579,7 @@ function draw() { //Main looping draw function
 };	
 
 function keyPressed(){ //Function to detect key presses 
-	console.log(keyCode);
 	if (keyCode == 32){
-		console.log("harddrop");
 		inPlay.landState = 3;
 		while (inPlay.landState == 3){
 			inPlay.move('down');
@@ -573,10 +589,6 @@ function keyPressed(){ //Function to detect key presses
 	else if (keyCode == 72){
 		hold(inPlay);
 	}
-
-	/*else if (keyCode == 87){	
-		inPlay.move("up");
-	}*/
 	else if (keyCode == 38){
 		inPlay.rotate();
 	}
