@@ -5,6 +5,7 @@ var pieceType = 7;
 var deadzone = new Array;
 var allowChange = true;
 var allowControl = true;
+var held;
 
 var color_red = [254, 0, 0];
 var color_orange = [255, 100, 0];
@@ -80,25 +81,32 @@ function renderRect(location , color) //function to render perBlock
 {
 	if (location[0] != null && location[1] != null){
 		fill(color[0],color[1],color[2]);
-		rect(tetrisWindow.xOffset + location[0] * block.length, tetrisWindow.yOffset + location[1] * block.length, tetrisWindow.width / 10, tetrisWindow.height / 24);
+		rect(tetrisWindow.xOffset + location[0] * block.length, tetrisWindow.yOffset + location[1] * block.length, block.length, block.length);
 	}
-	
 };
 
 function renderUI(){
-	//Outer Grid:
+	//Main Rect:
 	background(255,255,255);
 	fill(255,255,255);
 	rect(tetrisWindow.xOffset, tetrisWindow.yOffset, tetrisWindow.width, tetrisWindow.height);
 
+
+	//Outer Rects:
+	rect(tetrisWindow.xOffset - (block.length * 5), tetrisWindow.yOffset, block.length * 5, block.length * 6);
+	rect(tetrisWindow.xOffset + tetrisWindow.width, tetrisWindow.yOffset, block.length * 5, block.length * 6);
+	rect(tetrisWindow.xOffset + tetrisWindow.width, tetrisWindow.yOffset + (block.length * 6), block.length * 5, block.length * 6);
+
+	//Grid
 	stroke(211,211,211);
 	for (var x = 1; x < 10; x++){
-		line(tetrisWindow.xOffset + (x * block.length), tetrisWindow.yOffset, tetrisWindow.xOffset + (x * block.length), tetrisWindow.yOffset + tetrisWindow.height);
+		line(tetrisWindow.xOffset + (x * block.length), tetrisWindow.yOffset + 1, tetrisWindow.xOffset + (x * block.length), tetrisWindow.yOffset + tetrisWindow.height - 1);
 	}
 	for(var y = 1; y < 24; y++){
-	line(tetrisWindow.xOffset, tetrisWindow.yOffset + (y * block.length), tetrisWindow.xOffset + tetrisWindow.width, tetrisWindow.yOffset + (y * block.length));
+	line(tetrisWindow.xOffset + 1, tetrisWindow.yOffset + (y * block.length), tetrisWindow.xOffset + tetrisWindow.width - 1, tetrisWindow.yOffset + (y * block.length));
 	}
 	stroke(0,0,0);
+
 }
 
 for (var x = 0; x < 24; x++){ //Creates a deadzone to prevent horizontal bound breaking
@@ -173,31 +181,31 @@ class External{
 
 External.prototype.update = function(){
 		if (this.pieceType == 1){ //T-Pice
-			this.blocks = [[-3,3],[-3,2],[-3,4],[-4,3]]; //first block should be point to rotate around
+			this.blocks = [[-2.5,2.5],[-2.5,1.5],[-2.5,3.5],[-3.5,2.5]]; //first block should be point to rotate around
 			this.color = color_blue;
 		}
 		else if (this.pieceType == 2){ //left side L
-			this.blocks = [[-3,1],[-3,2],[-3,3],[-4,3]];
+			this.blocks = [[-2.5,1.5],[-2.5,2.5],[-2.5,3.5],[-3.5,3.5]];
 			this.color = color_orange;
 		}
 		else if (this.pieceType == 3){ //Right side L
-			this.blocks = [[-4,1],[-4,2],[-4,3],[-3,3]];
+			this.blocks = [[-3.5,1.5],[-3.5,2.5],[-3.5,3.5],[-2.5,3.5]];
 			this.color = color_yellow;
 		}
 		else if (this.pieceType == 4){ //Straight
-			this.blocks = [[-3,0],[-3,1],[-3,2],[-3,3]];
+			this.blocks = [[-3,1],[-3,2],[-3,3],[-3,4]];
 			this.color = color_red;
 		}
 		else if (this.pieceType == 5){ //Square
-			this.blocks = [[-3,2],[-3,3],[-2,2],[-2,3]];
+			this.blocks = [[-3.5,2],[-3.5,3],[-2.5,2],[-2.5,3]];
 			this.color = color_pink;
 		}
 		else if (this.pieceType == 6){ //Right Z
-			this.blocks = [[-3,1],[-3,2],[-4,2],[-4,3]];
+			this.blocks = [[-2.5,1.5],[-2.5,2.5],[-3.5,2.5],[-3.5,3.5]];
 			this.color = color_purple;
 		}
 		else if (this.pieceType == 7){ //Left Z
-			this.blocks = [[-4,1],[-4,2],[-3,2],[-3,3]];
+			this.blocks = [[-3.5,1.5],[-3.5,2.5],[-2.5,2.5],[-2.5,3.5]];
 			this.color = color_green;
 		}
 	}
@@ -246,6 +254,7 @@ class Piece{ //Class for piece
 
 	}
 };
+
 
 Piece.prototype.draw = function(){ //draws the piece on screen
 	for (var x = 0; x < this.blocks.length; x++){
@@ -481,7 +490,7 @@ Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped b
 	mainBoard.checkLines();
 	inPlay = new Piece(upcoming1.pieceType);
 	upcoming1 = new External(upcoming2.pieceType, 15, 0);
-	upcoming2 = new External(Math.floor(Math.random() * 7) + 1, 15, 7)
+	upcoming2 = new External(Math.floor(Math.random() * 7) + 1, 15, 6)
 	upcoming1.update();
 	upcoming2.update();
 
@@ -512,7 +521,7 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 var inPlay = new Piece(Math.floor(Math.random() * 7) + 1); //This is going to be our initial piece for the game
 var held = new External(null, 0, 0);
 var upcoming1 = new External(Math.floor(Math.random() * 7) + 1, 15, 0);
-var upcoming2 = new External(Math.floor(Math.random() * 7) + 1, 15, 7);
+var upcoming2 = new External(Math.floor(Math.random() * 7) + 1, 15, 6);
 upcoming1.update();
 upcoming2.update();
 mainBoard = new Boards();
@@ -524,7 +533,7 @@ mainBoard.initArray();
 var tetrisWindow = { //Properties for tetris window in object
 	width: 200,
 	height: 480,
-	xOffset: 100,
+	xOffset: 200,
 	yOffset: 50
 }
 
@@ -586,7 +595,7 @@ function keyPressed(){ //Function to detect key presses
 		}
 	}
 
-	else if (keyCode == 72){
+	else if (keyCode == 67){
 		hold(inPlay);
 	}
 	else if (keyCode == 38){
