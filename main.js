@@ -16,6 +16,17 @@ var color_blue = [0, 0, 254];
 var color_purple = [129, 0, 127];
 var color_blue = [0, 0, 255];
 
+var tetrisWindow = { //Properties for tetris window in object
+	width: 200,
+	height: 480,
+	xOffset: 200,
+	yOffset: 50
+}
+
+var block = { //Information for blocks, want to make a piece object that lets me move pieces as a group
+	length : tetrisWindow.width / 10
+}
+
 
 function setup() { //Setup Function
 	createCanvas(window.innerWidth, window.innerHeight - 20); //Canvas creation
@@ -219,7 +230,7 @@ External.prototype.draw = function(){
 class Piece{ //Class for piece
 	constructor(pieceType){
 		this.color = color_green;
-		this.state = 2; //State of rotation
+		this.state = 1; //State of rotation
 		this.landed = false; //Is landed, want to exhange any instances of this with land state 
 		this.landState = 1; //1: has not touched any blocks, 2: Touched blocks, in cooldown, 3: Ready to be locked in 
 		this.pieceType = pieceType;
@@ -328,136 +339,23 @@ Piece.prototype.move = function(direction) { //Moves the piece
 Piece.prototype.rotate = function(){ //Rotating pieces
 	var modifiers = new Array;
 	var allowRotate = true;
-	if (this.pieceType == 1){//change to switches one day, seperate one for each piece, math is hard... too hard for me to care
-		switch (this.state){ //This code needs to be simplified and it should be that bad, just need xMod, yMod vars and a for loop after cases
-			//fix side states 
+	
+	switch (this.state){ 
+			case(1): 
+				this.state = 2
+				break;
+			case(2):
+				this.state = 3;
+				break;
+			case(3):
+				this.state = 4;
+				break;
+			case(4):
+				this.state = 1;
+				break;
+		}
 
-			case(1):
-				modifiers = [[0,-1],[0,1],[-1, 0]]; 
-				this.state = 2
-				break;
-			case(2):
-				modifiers = [[0,-1],[1,0],[-1,0]];
-				this.state = 3;
-				break;
-			case(3):
-				modifiers = [[0,-1],[0,1],[1,0]];
-				this.state = 4;
-				break;
-			case(4):
-				modifiers = [[0,1],[1,0],[-1,0]];
-				this.state = 1;
-				break;
-		}
-		
-	}
-	else if (this.pieceType == 2){ //Left L
-		switch (this.state){
-			case(1):
-				modifiers = [[0,-1],[0, 1],[-1, 1]]; 
-				this.state = 2
-				break;
-			case(2):
-				modifiers = [[-1,0],[1,0],[-1,-1]];
-				this.state = 3;
-				break;
-			case(3):
-				modifiers = [[0,1],[0,-1],[1,-1]];
-				this.state = 4;
-				break;
-			case(4):
-				modifiers = [[-1,0],[1,0],[1,1]];
-				this.state = 1;
-				break;
-		}
-		
-	}
-	else if (this.pieceType == 3){ //right L
-		switch (this.state){
-			case(1):
-				modifiers = [[0,-1],[0,1],[1, 1]]; 
-				this.state = 2
-				break;
-			case(2):
-				modifiers = [[1,0],[-1,0],[-1,1]];
-				this.state = 3;
-				break;
-			case(3):
-				modifiers = [[0,1],[0,-1],[-1,-1]];
-				this.state = 4;
-				break;
-			case(4):
-				modifiers = [[-1,0],[1,0],[1,-1]];
-				this.state = 1;
-				break;
-		}
-		
-	}
-	else if (this.pieceType == 4){ //Straight
-		switch (this.state){ 
-			case(1):
-				modifiers = [[0,-1],[0,1],[0, 2]]; 
-				this.state = 2
-				break;
-			case(2):
-				modifiers = [[-2,0],[-1,0],[1,0]];
-				this.state = 3;
-				break;
-			case(3):
-				modifiers = [[0,1],[0,-1],[0,-2]];
-				this.state = 4;
-				break;
-			case(4):
-				modifiers = [[-1,0],[1,0],[2,0]];
-				this.state = 1;
-				break;
-		}
-		
-	}
-	else if (this.pieceType == 5){ //Cube
-		modifiers = [[0,1],[1,0],[1,1]];
-	}
-	else if (this.pieceType == 6){ //Right Z
-		switch (this.state){ 
-			case(1):
-				modifiers = [[0,-1],[-1,0],[-1, 1]]; 
-				this.state = 2
-				break;
-			case(2):
-				modifiers = [[1,0],[0,-1],[-1,-1]];
-				this.state = 3;
-				break;
-			case(3):
-				modifiers = [[0,1],[1,0],[1,-1]];
-				this.state = 4;
-				break;
-			case(4):
-				modifiers = [[-1,0],[0,1],[1,1]];
-				this.state = 1;
-				break;
-		}	
-	}
-	else if (this.pieceType == 7){ //Left Z
-		switch (this.state){ 
-			case(1):
-				modifiers = [[0,-1],[1,0],[1, 1]]; 
-				this.state = 2
-				break;
-			case(2):
-				modifiers = [[1,0],[0,1],[-1,1]];
-				this.state = 3;
-				break;
-			case(3):
-				modifiers = [[0,1],[-1,0],[-1,-1]];
-				this.state = 4;
-				break;
-			case(4):
-				modifiers = [[-1,0],[0,-1],[1,-1]];
-				this.state = 1;
-				break;
-		}
-		
-	}
+	modifiers = rotationLogic[this.pieceType - 1][this.state - 1];
 
 	var toBeRotated = [
 		[this.blocks[0][0] + modifiers[0][0], this.blocks[0][1] + modifiers[0][1]],
@@ -526,20 +424,6 @@ upcoming1.update();
 upcoming2.update();
 mainBoard = new Boards();
 mainBoard.initArray();
-
-
-
-
-var tetrisWindow = { //Properties for tetris window in object
-	width: 200,
-	height: 480,
-	xOffset: 200,
-	yOffset: 50
-}
-
-var block = { //Information for blocks, want to make a piece object that lets me move pieces as a group
-	length : tetrisWindow.width / 10
-}
 
 
 function draw() { //Main looping draw function
