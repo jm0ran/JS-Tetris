@@ -6,6 +6,7 @@ var deadzone = new Array;
 var allowChange = true;
 var allowControl = true;
 var held;
+var ghostPiece;
 
 var color_red = [254, 0, 0];
 var color_orange = [255, 100, 0];
@@ -330,7 +331,15 @@ Piece.prototype.move = function(direction) { //Moves the piece
 			this.blocks[x][index] += modifier;
 		}
 	}
-	inPlay.trackFall(); //Checks for where the piece is each time the move function is run, move method is used by both player and autoDrop		
+	if(inPlay.trackFall() == true){ //Checks for where the piece is each time the move function is run, move method is used by both player and autoDrop		
+		inPlay.writeBlocks();
+		inPlay = new Piece(upcoming1.pieceType);
+		upcoming1 = new External(upcoming2.pieceType, 15, 0);
+		upcoming2 = new External(Math.floor(Math.random() * 7) + 1, 15, 6)
+		upcoming1.update();
+		upcoming2.update();
+		mainBoard.checkLines();
+	}
 }
 
 Piece.prototype.rotate = function(){ //Rotating pieces
@@ -382,13 +391,6 @@ Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped b
 		var yDest = this.blocks[x][1];
 		mainBoard.boardArray[xDest][yDest] = this.color; //different colors for different locations at one point
 	}
-	mainBoard.checkLines();
-	inPlay = new Piece(upcoming1.pieceType);
-	upcoming1 = new External(upcoming2.pieceType, 15, 0);
-	upcoming2 = new External(Math.floor(Math.random() * 7) + 1, 15, 6)
-	upcoming1.update();
-	upcoming2.update();
-
 }
 
 Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece placement 
@@ -403,13 +405,23 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 				setTimeout(function(){
 					inPlay.landState = 3;
 				}, 1000);
+				return false;
 			}
-			if(this.landState == 3){
+			else if(this.landState == 3){
 				this.landState = 1;
 				this.writeBlocks();
+				return true;
 			}
 		}
+		else{
+			return false;
+		}
 	}
+}
+
+Piece.prototype.renderGhost = function(){
+	ghostPiece = new Piece(this.pieceType);
+	console.log(ghostPiece);
 }
 
 
@@ -421,6 +433,7 @@ upcoming1.update();
 upcoming2.update();
 mainBoard = new Boards();
 mainBoard.initArray();
+inPlay.renderGhost();
 
 
 function draw() { //Main looping draw function
