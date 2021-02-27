@@ -20,11 +20,8 @@ var tetrisWindow = { //Properties for tetris window in object
 	width: 200,
 	height: 480,
 	xOffset: 200,
-	yOffset: 50
-}
-
-var block = { //Information for blocks, want to make a piece object that lets me move pieces as a group
-	length : tetrisWindow.width / 10
+	yOffset: 50,
+	blockLength : 200 / 10
 }
 
 
@@ -92,7 +89,7 @@ function renderRect(location , color) //function to render perBlock
 {
 	if (location[0] != null && location[1] != null){
 		fill(color[0],color[1],color[2]);
-		rect(tetrisWindow.xOffset + location[0] * block.length, tetrisWindow.yOffset + location[1] * block.length, block.length, block.length);
+		rect(tetrisWindow.xOffset + location[0] * tetrisWindow.blockLength, tetrisWindow.yOffset + location[1] * tetrisWindow.blockLength, tetrisWindow.blockLength, tetrisWindow.blockLength);
 	}
 };
 
@@ -104,17 +101,17 @@ function renderUI(){
 
 
 	//Outer Rects:
-	rect(tetrisWindow.xOffset - (block.length * 5), tetrisWindow.yOffset, block.length * 5, block.length * 6);
-	rect(tetrisWindow.xOffset + tetrisWindow.width, tetrisWindow.yOffset, block.length * 5, block.length * 6);
-	rect(tetrisWindow.xOffset + tetrisWindow.width, tetrisWindow.yOffset + (block.length * 6), block.length * 5, block.length * 6);
+	rect(tetrisWindow.xOffset - (tetrisWindow.blockLength * 5), tetrisWindow.yOffset, tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
+	rect(tetrisWindow.xOffset + tetrisWindow.width, tetrisWindow.yOffset, tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
+	rect(tetrisWindow.xOffset + tetrisWindow.width, tetrisWindow.yOffset + (tetrisWindow.blockLength * 6), tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
 
 	//Grid
 	stroke(211,211,211);
 	for (var x = 1; x < 10; x++){
-		line(tetrisWindow.xOffset + (x * block.length), tetrisWindow.yOffset + 1, tetrisWindow.xOffset + (x * block.length), tetrisWindow.yOffset + tetrisWindow.height - 1);
+		line(tetrisWindow.xOffset + (x * tetrisWindow.blockLength), tetrisWindow.yOffset + 1, tetrisWindow.xOffset + (x * tetrisWindow.blockLength), tetrisWindow.yOffset + tetrisWindow.height - 1);
 	}
 	for(var y = 1; y < 24; y++){
-	line(tetrisWindow.xOffset + 1, tetrisWindow.yOffset + (y * block.length), tetrisWindow.xOffset + tetrisWindow.width - 1, tetrisWindow.yOffset + (y * block.length));
+	line(tetrisWindow.xOffset + 1, tetrisWindow.yOffset + (y * tetrisWindow.blockLength), tetrisWindow.xOffset + tetrisWindow.width - 1, tetrisWindow.yOffset + (y * tetrisWindow.blockLength));
 	}
 	stroke(0,0,0);
 
@@ -271,7 +268,7 @@ Piece.prototype.draw = function(){ //draws the piece on screen
 	for (var x = 0; x < this.blocks.length; x++){
 		var location = this.blocks[x];
 		fill(this.color[0],this.color[1],this.color[2]);
-		rect(tetrisWindow.xOffset + location[0] * block.length, tetrisWindow.yOffset + location[1] * block.length, tetrisWindow.width / 10, tetrisWindow.height / 24);
+		rect(tetrisWindow.xOffset + location[0] * tetrisWindow.blockLength, tetrisWindow.yOffset + location[1] * tetrisWindow.blockLength, tetrisWindow.width / 10, tetrisWindow.height / 24);
 	}
 }
 

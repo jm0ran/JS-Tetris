@@ -1,6 +1,3 @@
-console.log("hi");
-
-
 var rotationLogic = 
 [
 	[
