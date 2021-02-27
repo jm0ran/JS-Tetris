@@ -7,6 +7,7 @@ var allowChange = true;
 var allowControl = true;
 var held;
 var ghostBlocks = new Array;
+var isFalling = true;
 
 var color_red = [254, 0, 0];
 var color_orange = [255, 100, 0];
@@ -20,7 +21,7 @@ var color_blue = [0, 0, 255];
 var tetrisWindow = { //Properties for tetris window in object
 	width: 200,
 	height: 480,
-	xOffset: 200,
+	xOffset: 150,
 	yOffset: 50,
 	blockLength : 200 / 10
 }
@@ -61,6 +62,8 @@ function inArray(original, toCheck){
 };
 
 function hold(passedPiece){
+	isFalling = false;
+	ghostBlocks = [];
 	if(held.pieceType == null){
 		held.pieceType = passedPiece.pieceType;
 		inPlay = new Piece(upcoming1.pieceType);
@@ -73,6 +76,7 @@ function hold(passedPiece){
 		var heldTemp = held.pieceType;
 		held.pieceType = passedPiece.pieceType;
 		inPlay = new Piece(heldTemp);
+
 	}
 	held.update();
 }
@@ -214,6 +218,7 @@ External.prototype.draw = function(){
 	for(var x = 0; x < this.blocks.length; x++){
 		renderRect([this.blocks[x][0] + this.xOffset,this.blocks[x][1] + this.yOffset], this.color);
 	}
+	isFalling = true;
 }
 
 class Piece{ //Class for piece
@@ -265,6 +270,7 @@ Piece.prototype.draw = function(){ //draws the piece on screen
 }
 
 Piece.prototype.move = function(direction) { //Moves the piece
+	isFalling = true;
 	var index = null;
 	var modifier = null;
 	allowChange = true;
@@ -381,6 +387,7 @@ Piece.prototype.rotate = function(){ //Rotating pieces
 }
 
 Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped blocks array, I want to check for line clears here
+	isFalling = false;
 	for (var x = 0; x < this.blocks.length; x++){
 		var xDest = this.blocks[x][0];
 		var yDest = this.blocks[x][1];
@@ -416,20 +423,23 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 }
  
 Piece.prototype.renderGhost = function(){
-	ghostBlocks = new Array;
-	for(var x = 0; x < this.blocks.length; x++){
-		ghostBlocks.push(this.blocks[x]);
-	}
+	if (isFalling){
+		ghostBlocks = new Array;
+		for(var x = 0; x < this.blocks.length; x++){
+			ghostBlocks.push(this.blocks[x]);
+		}
 
-	while(!inArray(deadzone, ghostBlocks) && !checkExistanceArray(ghostBlocks)){
-		for (var x = 0; x < ghostBlocks.length; x++){
-			ghostBlocks[x] = [ghostBlocks[x][0], ghostBlocks[x][1] + 1];
+		while(!inArray(deadzone, ghostBlocks) && !checkExistanceArray(ghostBlocks)){
+			for (var x = 0; x < ghostBlocks.length; x++){
+				ghostBlocks[x] = [ghostBlocks[x][0], ghostBlocks[x][1] + 1];
+			}
+		}
+
+		for(var x = 0; x < ghostBlocks.length; x++){
+			ghostBlocks[x] = [ghostBlocks[x][0], ghostBlocks[x][1] - 1];
 		}
 	}
-
-	for(var x = 0; x < ghostBlocks.length; x++){
-		ghostBlocks[x] = [ghostBlocks[x][0], ghostBlocks[x][1] - 1];
-	}
+	
 
 
 }
@@ -455,6 +465,16 @@ function draw() { //Main looping draw function
 
 	renderUI();
 
+	stroke(inPlay.color[0],inPlay.color[1],inPlay.color[2]);
+
+	if(isFalling){
+		for(var x = 0; x < ghostBlocks.length; x++){
+			renderRect(ghostBlocks[x], 255,255,255);
+		}
+	}
+
+	stroke(0,0,0);
+
 	inPlay.draw()
 	if (held.pieceType != null){
 		held.draw();
@@ -471,9 +491,6 @@ function draw() { //Main looping draw function
 		}
 	}
 
-	for(var x = 0; x < ghostBlocks.length; x++){
-		renderRect(ghostBlocks[x], color_pink);
-	}
 	
 
 	if (allowControl == true){
@@ -498,7 +515,7 @@ function draw() { //Main looping draw function
 
 function keyPressed(){ //Function to detect key presses 
 	if (keyCode == 32){
-		ghostBlocks = [];
+		isFalling = false;
 		inPlay.landState = 3;
 		while (inPlay.landState == 3){
 			inPlay.move('down');
@@ -506,7 +523,7 @@ function keyPressed(){ //Function to detect key presses
 	}
 
 	else if (keyCode == 67){
-		ghostBlocks = [];
+		isFalling = false;
 		hold(inPlay);
 	}
 	else if (keyCode == 38){
