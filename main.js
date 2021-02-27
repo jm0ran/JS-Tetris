@@ -6,7 +6,7 @@ var deadzone = new Array;
 var allowChange = true;
 var allowControl = true;
 var held;
-var ghostPiece;
+var ghostBlocks = new Array;
 
 var color_red = [254, 0, 0];
 var color_orange = [255, 100, 0];
@@ -35,15 +35,6 @@ function controlTimeout(){
 	allowControl = true;
 };
 
-function checkExistanceSingular(location){
-	var destination = mainBoard.boardArray[x][y];
-	if(destination != null){
-		return true;
-	}
-	else{
-		return false;
-	}
-}
 
 function checkExistanceArray(locations){
 	for(var x = 0; x < locations.length; x++){
@@ -340,6 +331,8 @@ Piece.prototype.move = function(direction) { //Moves the piece
 		upcoming2.update();
 		mainBoard.checkLines();
 	}
+
+	this.renderGhost();
 }
 
 Piece.prototype.rotate = function(){ //Rotating pieces
@@ -383,6 +376,8 @@ Piece.prototype.rotate = function(){ //Rotating pieces
 	else{
 		//need a condition for what to do if rotation is blocked
 	}
+
+	this.renderGhost();
 }
 
 Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped blocks array, I want to check for line clears here
@@ -391,6 +386,7 @@ Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped b
 		var yDest = this.blocks[x][1];
 		mainBoard.boardArray[xDest][yDest] = this.color; //different colors for different locations at one point
 	}
+	ghostBlocks = [];
 }
 
 Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece placement 
@@ -418,10 +414,24 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 		}
 	}
 }
-
+ 
 Piece.prototype.renderGhost = function(){
-	ghostPiece = new Piece(this.pieceType);
-	console.log(ghostPiece);
+	ghostBlocks = new Array;
+	for(var x = 0; x < this.blocks.length; x++){
+		ghostBlocks.push(this.blocks[x]);
+	}
+
+	while(!inArray(deadzone, ghostBlocks) && !checkExistanceArray(ghostBlocks)){
+		for (var x = 0; x < ghostBlocks.length; x++){
+			ghostBlocks[x] = [ghostBlocks[x][0], ghostBlocks[x][1] + 1];
+		}
+	}
+
+	for(var x = 0; x < ghostBlocks.length; x++){
+		ghostBlocks[x] = [ghostBlocks[x][0], ghostBlocks[x][1] - 1];
+	}
+
+
 }
 
 
@@ -460,7 +470,12 @@ function draw() { //Main looping draw function
 			}
 		}
 	}
+
+	for(var x = 0; x < ghostBlocks.length; x++){
+		renderRect(ghostBlocks[x], color_pink);
+	}
 	
+
 	if (allowControl == true){
 		if (keyIsDown(37)){
 			inPlay.move('left');
@@ -483,6 +498,7 @@ function draw() { //Main looping draw function
 
 function keyPressed(){ //Function to detect key presses 
 	if (keyCode == 32){
+		ghostBlocks = [];
 		inPlay.landState = 3;
 		while (inPlay.landState == 3){
 			inPlay.move('down');
@@ -490,6 +506,7 @@ function keyPressed(){ //Function to detect key presses
 	}
 
 	else if (keyCode == 67){
+		ghostBlocks = [];
 		hold(inPlay);
 	}
 	else if (keyCode == 38){
