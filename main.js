@@ -92,9 +92,9 @@ function renderRect(location , color) //function to render perBlock
 function renderUI(){
 	//Main Rect:
 	background(255,255,255);
+	fill(197,215,189);
+	rect(tetrisWindow.xOffset - 1, tetrisWindow.yOffset - 1, tetrisWindow.width + 2, tetrisWindow.height + 2);
 	fill(255,255,255);
-	rect(tetrisWindow.xOffset, tetrisWindow.yOffset, tetrisWindow.width, tetrisWindow.height);
-
 
 	//Outer Rects:
 	rect(tetrisWindow.xOffset - (tetrisWindow.blockLength * 5), tetrisWindow.yOffset, tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
@@ -102,6 +102,7 @@ function renderUI(){
 	rect(tetrisWindow.xOffset + tetrisWindow.width, tetrisWindow.yOffset + (tetrisWindow.blockLength * 6), tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
 
 	//Grid
+	/*
 	stroke(211,211,211);
 	for (var x = 1; x < 10; x++){
 		line(tetrisWindow.xOffset + (x * tetrisWindow.blockLength), tetrisWindow.yOffset + 1, tetrisWindow.xOffset + (x * tetrisWindow.blockLength), tetrisWindow.yOffset + tetrisWindow.height - 1);
@@ -110,6 +111,7 @@ function renderUI(){
 	line(tetrisWindow.xOffset + 1, tetrisWindow.yOffset + (y * tetrisWindow.blockLength), tetrisWindow.xOffset + tetrisWindow.width - 1, tetrisWindow.yOffset + (y * tetrisWindow.blockLength));
 	}
 	stroke(0,0,0);
+	*/
 
 }
 
@@ -469,7 +471,7 @@ function draw() { //Main looping draw function
 
 	if(isFalling){
 		for(var x = 0; x < ghostBlocks.length; x++){
-			renderRect(ghostBlocks[x], 255,255,255);
+			renderRect(ghostBlocks[x], [197,215,189]);
 		}
 	}
 
