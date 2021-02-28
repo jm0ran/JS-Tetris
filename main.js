@@ -93,7 +93,7 @@ function renderUI(){
 	//Main Rect:
 	background(255,255,255);
 	fill(197,215,189);
-	rect(tetrisWindow.xOffset - 1, tetrisWindow.yOffset - 1, tetrisWindow.width + 2, tetrisWindow.height + 2);
+	rect(tetrisWindow.xOffset - 1, tetrisWindow.yOffset - 1, tetrisWindow.width + 2, tetrisWindow.height + 1);
 	fill(255,255,255);
 
 	//Outer Rects:
