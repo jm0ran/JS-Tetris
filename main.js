@@ -93,13 +93,13 @@ function renderUI(){
 	//Main Rect:
 	background(255,255,255);
 	fill(197,215,189);
-	rect(tetrisWindow.xOffset - 1, tetrisWindow.yOffset - 1, tetrisWindow.width + 2, tetrisWindow.height + 1);
+	rect(tetrisWindow.xOffset - 1, tetrisWindow.yOffset - 1, tetrisWindow.width + 2, tetrisWindow.height + 2);
 	fill(255,255,255);
 
 	//Outer Rects:
-	rect(tetrisWindow.xOffset - (tetrisWindow.blockLength * 5), tetrisWindow.yOffset, tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
-	rect(tetrisWindow.xOffset + tetrisWindow.width, tetrisWindow.yOffset, tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
-	rect(tetrisWindow.xOffset + tetrisWindow.width, tetrisWindow.yOffset + (tetrisWindow.blockLength * 6), tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
+	rect(tetrisWindow.xOffset - (tetrisWindow.blockLength * 5) - 1, tetrisWindow.yOffset -1, tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
+	rect(tetrisWindow.xOffset + tetrisWindow.width + 1, tetrisWindow.yOffset - 1, tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
+	rect(tetrisWindow.xOffset + tetrisWindow.width + 1, tetrisWindow.yOffset + (tetrisWindow.blockLength * 6) - 1, tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
 
 	//Grid
 	/*
