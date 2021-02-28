@@ -186,33 +186,35 @@ class External{
 };
 
 External.prototype.update = function(){
-		if (this.pieceType == 1){ //T-Pice
-			this.blocks = [[-2.5,2.5],[-2.5,1.5],[-2.5,3.5],[-3.5,2.5]]; //first block should be point to rotate around
-			this.color = color_blue;
-		}
-		else if (this.pieceType == 2){ //left side L
-			this.blocks = [[-2.5,1.5],[-2.5,2.5],[-2.5,3.5],[-3.5,3.5]];
-			this.color = color_orange;
-		}
-		else if (this.pieceType == 3){ //Right side L
-			this.blocks = [[-3.5,1.5],[-3.5,2.5],[-3.5,3.5],[-2.5,3.5]];
-			this.color = color_yellow;
-		}
-		else if (this.pieceType == 4){ //Straight
-			this.blocks = [[-3,1],[-3,2],[-3,3],[-3,4]];
-			this.color = color_red;
-		}
-		else if (this.pieceType == 5){ //Square
-			this.blocks = [[-3.5,2],[-3.5,3],[-2.5,2],[-2.5,3]];
-			this.color = color_pink;
-		}
-		else if (this.pieceType == 6){ //Right Z
-			this.blocks = [[-2.5,1.5],[-2.5,2.5],[-3.5,2.5],[-3.5,3.5]];
-			this.color = color_purple;
-		}
-		else if (this.pieceType == 7){ //Left Z
-			this.blocks = [[-3.5,1.5],[-3.5,2.5],[-2.5,2.5],[-2.5,3.5]];
-			this.color = color_green;
+		switch (this.pieceType){
+			case 1: //T-Pice
+				this.blocks = [[-2.5,2.5],[-2.5,1.5],[-2.5,3.5],[-3.5,2.5]]; //first block should be point to rotate around
+				this.color = color_blue;
+				break;
+			case 2: //left side L
+				this.blocks = [[-2.5,1.5],[-2.5,2.5],[-2.5,3.5],[-3.5,3.5]];
+				this.color = color_orange;
+				break;
+			case 3: //Right side L
+				this.blocks = [[-3.5,1.5],[-3.5,2.5],[-3.5,3.5],[-2.5,3.5]];
+				this.color = color_yellow;
+				break;
+			case 4: //Straight
+				this.blocks = [[-3,1],[-3,2],[-3,3],[-3,4]];
+				this.color = color_red;
+				break;
+			case 5: //Square
+				this.blocks = [[-3.5,2],[-3.5,3],[-2.5,2],[-2.5,3]];
+				this.color = color_pink;
+				break;
+			case 6: //Right Z
+				this.blocks = [[-2.5,1.5],[-2.5,2.5],[-3.5,2.5],[-3.5,3.5]];
+				this.color = color_purple;
+				break;
+			case 7: //Left Z
+				this.blocks = [[-3.5,1.5],[-3.5,2.5],[-2.5,2.5],[-2.5,3.5]];
+				this.color = color_green;
+				break;
 		}
 	}
 
