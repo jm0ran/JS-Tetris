@@ -1,3 +1,11 @@
+function setup() { //Setup Function
+	var canvas = createCanvas(document.getElementById("gameContainer").offsetWidth, document.getElementById("gameContainer").offsetHeight);
+	canvas.parent("gameWindow"); //Canvas creation
+};
+
+
+console.log(document.getElementById("gameContainer").offsetHeight);
+
 var miliTarget = 200;
 var dropSpeed = 200;
 var autoDrop = true;
@@ -19,17 +27,12 @@ var color_purple = [129, 0, 127];
 var color_blue = [0, 0, 255];
 
 var tetrisWindow = { //Properties for tetris window in object
-	width: 200,
-	height: 480,
-	xOffset: 150,
-	yOffset: 50,
-	blockLength : 200 / 10
+	width: 10 * Math.floor(document.getElementById("gameContainer").offsetHeight / 25),
+	height: 24 * Math.floor(document.getElementById("gameContainer").offsetHeight / 25),
+	xOffset: 15 + 5 * Math.floor(document.getElementById("gameContainer").offsetHeight / 25),
+	yOffset: 10,
+	blockLength : (10 * Math.floor(document.getElementById("gameContainer").offsetHeight / 25)) / 10
 }
-
-
-function setup() { //Setup Function
-	createCanvas(window.innerWidth, window.innerHeight - 20); //Canvas creation
-};
 
 
 function controlTimeout(){
@@ -257,7 +260,7 @@ Piece.prototype.draw = function(){ //draws the piece on screen
 	for (var x = 0; x < this.blocks.length; x++){
 		var location = this.blocks[x];
 		fill(this.color[0],this.color[1],this.color[2]);
-		rect(tetrisWindow.xOffset + location[0] * tetrisWindow.blockLength, tetrisWindow.yOffset + location[1] * tetrisWindow.blockLength, tetrisWindow.width / 10, tetrisWindow.height / 24);
+		rect(tetrisWindow.xOffset + location[0] * tetrisWindow.blockLength, tetrisWindow.yOffset + location[1] * tetrisWindow.blockLength, tetrisWindow.blockLength);
 	}
 }
 
@@ -454,6 +457,8 @@ function draw() { //Main looping draw function
 		inPlay.move("down");
 		miliTarget = millis() + dropSpeed;
 	}
+
+	strokeWeight(2);
 
 	renderUI();
 
