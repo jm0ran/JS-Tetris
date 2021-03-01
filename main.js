@@ -76,7 +76,6 @@ function hold(passedPiece){
 		var heldTemp = held.pieceType;
 		held.pieceType = passedPiece.pieceType;
 		inPlay = new Piece(heldTemp);
-
 	}
 	held.update();
 }
@@ -100,18 +99,6 @@ function renderUI(){
 	rect(tetrisWindow.xOffset - (tetrisWindow.blockLength * 5) - 1, tetrisWindow.yOffset -1, tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
 	rect(tetrisWindow.xOffset + tetrisWindow.width + 1, tetrisWindow.yOffset - 1, tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
 	rect(tetrisWindow.xOffset + tetrisWindow.width + 1, tetrisWindow.yOffset + (tetrisWindow.blockLength * 6) - 1, tetrisWindow.blockLength * 5, tetrisWindow.blockLength * 6);
-
-	//Grid
-	/*
-	stroke(211,211,211);
-	for (var x = 1; x < 10; x++){
-		line(tetrisWindow.xOffset + (x * tetrisWindow.blockLength), tetrisWindow.yOffset + 1, tetrisWindow.xOffset + (x * tetrisWindow.blockLength), tetrisWindow.yOffset + tetrisWindow.height - 1);
-	}
-	for(var y = 1; y < 24; y++){
-	line(tetrisWindow.xOffset + 1, tetrisWindow.yOffset + (y * tetrisWindow.blockLength), tetrisWindow.xOffset + tetrisWindow.width - 1, tetrisWindow.yOffset + (y * tetrisWindow.blockLength));
-	}
-	stroke(0,0,0);
-	*/
 
 }
 
@@ -232,35 +219,36 @@ class Piece{ //Class for piece
 		this.landed = false; //Is landed, want to exhange any instances of this with land state 
 		this.landState = 1; //1: has not touched any blocks, 2: Touched blocks, in cooldown, 3: Ready to be locked in 
 		this.pieceType = pieceType;
-		if (pieceType == 1){ //T-Pice
-			this.blocks = [[2,2],[2,1],[2,3],[1,2]]; //first block should be point to rotate around
-			this.color = color_blue;
+		switch(pieceType){
+			case 1: //T-Pice
+				this.blocks = [[2,2],[2,1],[2,3],[1,2]]; //first block should be point to rotate around
+				this.color = color_blue;
+				break;
+			case 2: //left side L
+				this.blocks = [[5,1],[5,0],[5,2],[4,2]];
+				this.color = color_orange;
+				break;
+			case 3: //Right side L
+				this.blocks = [[5,1],[5,0],[5,2],[6,2]];
+				this.color = color_yellow;
+				break;
+			case 4: //Straight
+				this.blocks = [[5,1],[5,0],[5,2],[5,3]];
+				this.color = color_red;
+				break;
+			case 5: //Square
+				this.blocks = [[5,1],[5,0],[6,1],[6,0]];
+				this.color = color_pink;
+				break;
+			case 6: //Right Z
+				this.blocks = [[5,1],[5,0],[4,1],[4,2]];
+				this.color = color_purple;
+				break;
+			case 7: //Left Z
+				this.blocks = [[5,1],[5,0],[6,1],[6,2]];
+				this.color = color_green;
+				break;
 		}
-		else if (pieceType == 2){ //left side L
-			this.blocks = [[5,1],[5,0],[5,2],[4,2]];
-			this.color = color_orange;
-		}
-		else if (pieceType == 3){ //Right side L
-			this.blocks = [[5,1],[5,0],[5,2],[6,2]];
-			this.color = color_yellow;
-		}
-		else if (pieceType == 4){ //Straight
-			this.blocks = [[5,1],[5,0],[5,2],[5,3]];
-			this.color = color_red;
-		}
-		else if (pieceType == 5){ //Square
-			this.blocks = [[5,1],[5,0],[6,1],[6,0]];
-			this.color = color_pink;
-		}
-		else if (pieceType == 6){ //Right Z
-			this.blocks = [[5,1],[5,0],[4,1],[4,2]];
-			this.color = color_purple;
-		}
-		else if (pieceType == 7){ //Left Z
-			this.blocks = [[5,1],[5,0],[6,1],[6,2]];
-			this.color = color_green;
-		}
-
 	}
 };
 
@@ -495,8 +483,6 @@ function draw() { //Main looping draw function
 		}
 	}
 
-	
-
 	if (allowControl == true){
 		if (keyIsDown(37)){
 			inPlay.move('left');
@@ -518,23 +504,24 @@ function draw() { //Main looping draw function
 };	
 
 function keyPressed(){ //Function to detect key presses 
-	if (keyCode == 32){
-		isFalling = false;
-		inPlay.landState = 3;
-		while (inPlay.landState == 3){
-			inPlay.move('down');
-		}
-	}
-
-	else if (keyCode == 67){
-		isFalling = false;
-		hold(inPlay);
-	}
-	else if (keyCode == 38){
-		inPlay.rotate();
-	}
-	else if (keyCode == 80){
-		autoDrop = false;
+	switch(keyCode){
+		case(32):
+			isFalling = false;
+			inPlay.landState = 3;
+			while (inPlay.landState == 3){
+				inPlay.move('down');
+			}
+			break;
+		case 67:
+			isFalling = false;
+			hold(inPlay);
+			break;
+		case 38:
+			inPlay.rotate();
+			break;
+		case 80:
+			autoDrop = false;
+			break;
 	}
 }
 
