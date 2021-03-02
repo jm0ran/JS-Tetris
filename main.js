@@ -3,20 +3,18 @@ function setup() { //Setup Function
 	canvas.parent("gameWindow"); //Canvas creation
 };
 
+var miliTarget = 200; //Mili Target for repeated down moves
+var dropSpeed = 200; //Speed between drops
+var autoDrop = true; //If autodrop is enabled
+var pieceType = 7; //PieceType is what kind of piece from 0-7
+var deadzone = new Array; //Creates empty variable for deadzone pieces
+var allowChange = true; //Boolean to allow change
+var allowControl = true; //Boolean to allow control
+var held; //Creates empty variable for held piece
+var ghostBlocks = new Array; //Creates empty array for ghostBlocks
+var isFalling = true; //Boolean to determine if piece is falling
 
-console.log(document.getElementById("gameContainer").offsetHeight);
-
-var miliTarget = 200;
-var dropSpeed = 200;
-var autoDrop = true;
-var pieceType = 7;
-var deadzone = new Array;
-var allowChange = true;
-var allowControl = true;
-var held;
-var ghostBlocks = new Array;
-var isFalling = true;
-
+//Color Codes stored in variables
 var color_red = [254, 0, 0];
 var color_orange = [255, 100, 0];
 var color_yellow = [255, 255, 0];
@@ -34,13 +32,13 @@ var tetrisWindow = { //Properties for tetris window in object
 	blockLength : (10 * Math.floor(document.getElementById("gameContainer").offsetHeight / 25)) / 10
 }
 
-
+//Function for returning control to user after timeout
 function controlTimeout(){
 	allowControl = true;
 };
 
 
-function checkExistanceArray(locations){
+function checkExistanceArray(locations){ //This function checks if locations passed in are occupied by pieces that have been written to the board
 	for(var x = 0; x < locations.length; x++){
 			var destination = mainBoard.boardArray[locations[x][0]][locations[x][1]];
 			if(destination != null){
@@ -51,7 +49,7 @@ function checkExistanceArray(locations){
 	return false;
 }
 
-function inArray(original, toCheck){
+function inArray(original, toCheck){ //Check whether a single item of the passed in toCheck array exists in the original array
 	var sOriginal = JSON.stringify(original);
 	var sToCheck = new Array;
 	var includes = false;
@@ -64,7 +62,7 @@ function inArray(original, toCheck){
 	return includes;
 };
 
-function hold(passedPiece){
+function hold(passedPiece){ //Function to hold a piece in the game
 	isFalling = false;
 	ghostBlocks = [];
 	if(held.pieceType == null){
@@ -83,7 +81,7 @@ function hold(passedPiece){
 	held.update();
 }
 
-function renderRect(location , color) //function to render perBlock
+function renderRect(location , color) //function to render each block with location of block passed in plus color
 {
 	if (location[0] != null && location[1] != null){
 		fill(color[0],color[1],color[2]);
@@ -91,7 +89,7 @@ function renderRect(location , color) //function to render perBlock
 	}
 };
 
-function renderUI(){
+function renderUI(){ //Function that contains render code for main UI and outlines
 	//Main Rect:
 	background(255,255,255);
 	fill(197,215,189);
@@ -109,7 +107,7 @@ for (var x = 0; x < 24; x++){ //Creates a deadzone to prevent horizontal bound b
 	deadzone.push([-1, x]);
 	deadzone.push([10, x]);
 }
-for (var x = 0; x < 10; x++){
+for (var x = 0; x < 10; x++){ //Creates a deadzone to prevent vertical bound breaking
 	deadzone.push([x, 24]);
 	deadzone.push([x, -1]);
 }
@@ -117,13 +115,13 @@ for (var x = 0; x < 10; x++){
 
 //---- CLASSES ----\\
 
-class Boards{
+class Boards{ //Main class for Board object
 	constructor(){
 		this.boardArray = new Array;
 	}
 }
 
-Boards.prototype.initArray = function(){
+Boards.prototype.initArray = function(){ //Setups up mainboard array
 	for(var x = 0; x < 10; x++){
 		var arrayToPush = new Array;
 		for(var y = 0; y < 24; y++){
@@ -133,7 +131,7 @@ Boards.prototype.initArray = function(){
 	}
 }
 
-Boards.prototype.checkLines = function(){
+Boards.prototype.checkLines = function(){ //Checks lines for matches
 	var linesMatched = new Array;
 	for (var y = 0; y < 24 ; y++){
 		linesMatched.push(y);
@@ -149,7 +147,7 @@ Boards.prototype.checkLines = function(){
 	} 
 }
 
-Boards.prototype.clearLines = function(lines){
+Boards.prototype.clearLines = function(lines){ //Clear lines that are matched
 	for(var y = 0; y < lines.length; y++){
 		for(var x = 0; x < 10; x++){
 			this.boardArray[x][lines[y]] = null;
@@ -165,7 +163,7 @@ Boards.prototype.clearLines = function(lines){
 	}
 }
 
-class External{
+class External{ //Class for external pieces such as held piece and upcoming pieces
 	constructor(pieceType, xOffset, yOffset){
 		this.pieceType = pieceType;
 		this.xOffset = xOffset;
@@ -175,7 +173,7 @@ class External{
 	}
 };
 
-External.prototype.update = function(){
+External.prototype.update = function(){ //Updates piece location to organize them on screen
 		switch (this.pieceType){
 			case 1: //T-Pice
 				this.blocks = [[-2.5,2.5],[-2.5,1.5],[-2.5,3.5],[-3.5,2.5]]; //first block should be point to rotate around
@@ -208,7 +206,7 @@ External.prototype.update = function(){
 		}
 	}
 
-External.prototype.draw = function(){
+External.prototype.draw = function(){ //Dunction to draw external blocks
 	for(var x = 0; x < this.blocks.length; x++){
 		renderRect([this.blocks[x][0] + this.xOffset,this.blocks[x][1] + this.yOffset], this.color);
 	}
@@ -256,7 +254,7 @@ class Piece{ //Class for piece
 };
 
 
-Piece.prototype.draw = function(){ //draws the piece on screen
+Piece.prototype.draw = function(){ //Draws the given piece on the screen
 	for (var x = 0; x < this.blocks.length; x++){
 		var location = this.blocks[x];
 		fill(this.color[0],this.color[1],this.color[2]);
@@ -264,7 +262,7 @@ Piece.prototype.draw = function(){ //draws the piece on screen
 	}
 }
 
-Piece.prototype.move = function(direction) { //Moves the piece
+Piece.prototype.move = function(direction) { //Moves the piece in the 4 cardinal directions
 	isFalling = true;
 	var index = null;
 	var modifier = null;
@@ -336,7 +334,7 @@ Piece.prototype.move = function(direction) { //Moves the piece
 	this.renderGhost();
 }
 
-Piece.prototype.rotate = function(){ //Rotating pieces
+Piece.prototype.rotate = function(){ //Rotates pieces in a clockwise
 	var modifiers = new Array;
 	var allowRotate = true;
 	
@@ -417,7 +415,7 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 	}
 }
  
-Piece.prototype.renderGhost = function(){
+Piece.prototype.renderGhost = function(){ //renders ghost piece for the corresponding tetris piece
 	if (isFalling){
 		ghostBlocks = new Array;
 		for(var x = 0; x < this.blocks.length; x++){
@@ -440,15 +438,15 @@ Piece.prototype.renderGhost = function(){
 }
 
 
-var inPlay = new Piece(Math.floor(Math.random() * 7) + 1); //This is going to be our initial piece for the game
-var held = new External(null, 0, 0);
-var upcoming1 = new External(Math.floor(Math.random() * 7) + 1, 15, 0);
-var upcoming2 = new External(Math.floor(Math.random() * 7) + 1, 15, 6);
-upcoming1.update();
-upcoming2.update();
-mainBoard = new Boards();
-mainBoard.initArray();
-inPlay.renderGhost();
+var inPlay = new Piece(Math.floor(Math.random() * 7) + 1); //Creates initial piece for game
+var held = new External(null, 0, 0); //creates a placeholder held piece
+var upcoming1 = new External(Math.floor(Math.random() * 7) + 1, 15, 0); //Creates first upcoming piece
+var upcoming2 = new External(Math.floor(Math.random() * 7) + 1, 15, 6); //Creates second upcoming piece
+upcoming1.update(); //preps the first upcoming piece
+upcoming2.update(); //preps the second upcoming piece
+mainBoard = new Boards(); //Creates board
+mainBoard.initArray(); //initializes board
+inPlay.renderGhost(); //Renders ghost piece
 
 
 function draw() { //Main looping draw function
