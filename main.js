@@ -1,13 +1,12 @@
 function setup() { //Setup Function
-	var canvas = createCanvas(document.getElementById("gameContainer").offsetWidth, document.getElementById("gameContainer").offsetHeight);
+	const canvas = createCanvas(document.getElementById("gameContainer").offsetWidth, document.getElementById("gameContainer").offsetHeight);
 	canvas.parent("gameWindow"); //Canvas creation
 };
 
 var miliTarget = 200; //Mili Target for repeated down moves
-var dropSpeed = 200; //Speed between drops
+const dropSpeed = 200; //Speed between drops
 var autoDrop = true; //If autodrop is enabled
-var pieceType = 7; //PieceType is what kind of piece from 0-7
-var deadzone = new Array; //Creates empty variable for deadzone pieces
+const deadzone = new Array; //Creates empty variable for deadzone pieces
 var allowChange = true; //Boolean to allow change
 var allowControl = true; //Boolean to allow control
 var held; //Creates empty variable for held piece
@@ -15,14 +14,13 @@ var ghostBlocks = new Array; //Creates empty array for ghostBlocks
 var isFalling = true; //Boolean to determine if piece is falling
 
 //Color Codes stored in variables
-var color_red = [254, 0, 0];
-var color_orange = [255, 100, 0];
-var color_yellow = [255, 255, 0];
-var color_pink = [255, 153, 203];
-var color_green = [0, 128, 0];
-var color_blue = [0, 0, 254];
-var color_purple = [129, 0, 127];
-var color_blue = [0, 0, 255];
+const color_red = [254, 0, 0];
+const color_orange = [255, 100, 0];
+const color_yellow = [255, 255, 0];
+const color_pink = [255, 153, 203];
+const color_green = [0, 128, 0];
+const color_purple = [129, 0, 127];
+const color_blue = [0, 0, 255];
 
 var tetrisWindow = { //Properties for tetris window in object
 	width: 10 * Math.floor(document.getElementById("gameContainer").offsetHeight / 25),
@@ -207,8 +205,8 @@ External.prototype.update = function(){ //Updates piece location to organize the
 	}
 
 External.prototype.draw = function(){ //Dunction to draw external blocks
-	for(var x = 0; x < this.blocks.length; x++){
-		renderRect([this.blocks[x][0] + this.xOffset,this.blocks[x][1] + this.yOffset], this.color);
+	for(const block of this.blocks){
+		renderRect([block[0] + this.xOffset,block[1] + this.yOffset], this.color);
 	}
 	isFalling = true;
 }
@@ -255,8 +253,8 @@ class Piece{ //Class for piece
 
 
 Piece.prototype.draw = function(){ //Draws the given piece on the screen
-	for (var x = 0; x < this.blocks.length; x++){
-		var location = this.blocks[x];
+	for (const block of this.blocks){
+		const location = block;
 		fill(this.color[0],this.color[1],this.color[2]);
 		rect(tetrisWindow.xOffset + location[0] * tetrisWindow.blockLength, tetrisWindow.yOffset + location[1] * tetrisWindow.blockLength, tetrisWindow.blockLength);
 	}
@@ -289,18 +287,18 @@ Piece.prototype.move = function(direction) { //Moves the piece in the 4 cardinal
 
 	var incomingBlocks = new Array;
 	if (direction == "left"){
-		for (var x = 0; x < this.blocks.length; x++){
+		for (const block of this.blocks){
 			//incomingBlock = [this.blocks[x][0] - 1, this.blocks[x][1]];
-			incomingBlocks.push([this.blocks[x][0] - 1, this.blocks[x][1]]);
+			incomingBlocks.push([block[0] - 1, block[1]]);
 		}
 		if(inArray(deadzone, incomingBlocks) || checkExistanceArray(incomingBlocks)){
 			allowChange = false;
 		}
 	}
 	else if (direction == "right"){
-		for (var x = 0; x < this.blocks.length; x++){
+		for (const block of this.blocks){
 			//incomingBlock = [this.blocks[x][0] + 1, this.blocks[x][1]];
-			incomingBlocks.push([this.blocks[x][0] + 1, this.blocks[x][1]]);
+			incomingBlocks.push([block[0] + 1, block[1]]);
 		}
 		if(inArray(deadzone, incomingBlocks) || checkExistanceArray(incomingBlocks)){
 			allowChange = false;
@@ -308,8 +306,8 @@ Piece.prototype.move = function(direction) { //Moves the piece in the 4 cardinal
 	}
 
 	else if (direction == "down"){
-		for (var x = 0; x < this.blocks.length; x++){
-			incomingBlocks.push([this.blocks[x][0], this.blocks[x][1] + 1]);
+		for (const block of this.blocks){
+			incomingBlocks.push([block[0], block[1] + 1]);
 		}
 		if(inArray(deadzone, incomingBlocks) || checkExistanceArray(incomingBlocks)){
 			allowChange = false;
@@ -317,8 +315,8 @@ Piece.prototype.move = function(direction) { //Moves the piece in the 4 cardinal
 	}
 
 	if (allowChange){ //Makes sure both the index and modifier exist
-		for (var x = 0; x < this.blocks.length; x++){
-			this.blocks[x][index] += modifier;
+		for (const block of this.blocks){
+			block[index] += modifier;
 		}
 	}
 	if(inPlay.trackFall() == true){ //Checks for where the piece is each time the move function is run, move method is used by both player and autoDrop		
@@ -381,9 +379,9 @@ Piece.prototype.rotate = function(){ //Rotates pieces in a clockwise
 
 Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped blocks array, I want to check for line clears here
 	isFalling = false;
-	for (var x = 0; x < this.blocks.length; x++){
-		var xDest = this.blocks[x][0];
-		var yDest = this.blocks[x][1];
+	for (const block of this.blocks){
+		var xDest = block[0];
+		var yDest = block[1];
 		mainBoard.boardArray[xDest][yDest] = this.color; //different colors for different locations at one point
 	}
 	ghostBlocks = [];
@@ -392,8 +390,8 @@ Piece.prototype.writeBlocks = function(){ //Write blocks to previously dropped b
 Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece placement 
 	if (this.landState != null){ //may not be needed, depends on how I continue this code 
 		var bottomBlocks = new Array;
-		for (var x = 0; x < this.blocks.length; x++){
-			bottomBlocks.push([this.blocks[x][0], this.blocks[x][1] + 1]);
+		for (const block of this.blocks){
+			bottomBlocks.push([block[0], block[1] + 1]);
 		}
 		if(checkExistanceArray(bottomBlocks) || inArray(deadzone, bottomBlocks)){
 			if(this.landState == 1){
@@ -418,8 +416,8 @@ Piece.prototype.trackFall = function(){ //Tracks fall and checks for piece place
 Piece.prototype.renderGhost = function(){ //renders ghost piece for the corresponding tetris piece
 	if (isFalling){
 		ghostBlocks = new Array;
-		for(var x = 0; x < this.blocks.length; x++){
-			ghostBlocks.push(this.blocks[x]);
+		for(const block of this.blocks){
+			ghostBlocks.push(block);
 		}
 
 		while(!inArray(deadzone, ghostBlocks) && !checkExistanceArray(ghostBlocks)){
@@ -463,8 +461,8 @@ function draw() { //Main looping draw function
 	stroke(inPlay.color[0],inPlay.color[1],inPlay.color[2]);
 
 	if(isFalling){
-		for(var x = 0; x < ghostBlocks.length; x++){
-			renderRect(ghostBlocks[x], [197,215,189]);
+		for(const block of ghostBlocks){
+			renderRect(block, [197,215,189]);
 		}
 	}
 
